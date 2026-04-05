@@ -321,6 +321,9 @@ let S={
   score:{c:0,t:0},input:"",submitted:false,
   playingLine:-1,playing:false,abort:{v:false},
   elKey:localStorage.getItem("lingua_el_key")||"",
+  anthKey:localStorage.getItem("lingua_anth_key")||"",
+  myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
+  showUpload:false,uploadLang:"FR",uploadStep:0,uploadFile:null,uploadPreview:null,uploadProcessing:false,uploadError:"",
   elKeyInput:"",elMsg:"",
   voiceRate:parseFloat(localStorage.getItem("lingua_rate")||"1.0")
 };
@@ -392,6 +395,67 @@ async function playDialog(dialog,lang){
 function stopDialog(){S.abort.v=true;window.speechSynthesis.cancel();set({playing:false,playingLine:-1});}
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
+function saveMyLesson(lang, lesson){
+  const ml = Object.assign({}, S.myLessons);
+  if(!ml[lang]) ml[lang]=[];
+  ml[lang].push(lesson);
+  localStorage.setItem("lingua_my_lessons", JSON.stringify(ml));
+  set({myLessons:ml, showUpload:false, uploadStep:0, uploadFile:null, uploadPreview:null, uploadError:""});
+}
+
+function deleteMyLesson(lang, idx){
+  const ml = Object.assign({}, S.myLessons);
+  ml[lang] = (ml[lang]||[]).filter((_,i)=>i!==idx);
+  localStorage.setItem("lingua_my_lessons", JSON.stringify(ml));
+  set({myLessons:ml});
+}
+
+async function processUpload(){
+  set({uploadProcessing:true, uploadError:""});
+  const PROMPT = `Przeanalizuj ten material jezykowy. Wyciagnij dialog, slownictwo i gramatyke. Odpowiedz TYLKO czystym JSON bez markdown, schemat: {"title":"tytul","level":"A1","topic":"temat","dialog":[{"s":"rozm","l":"tekst","t":"tlum"}],"vocab":[{"w":"slowo","tr":"tlum","ipa":"","pl":"","ex":"","exT":""}],"fill":[{"s":"zdanie z ___","a":"odp","h":"wskazowka"}],"grammar":[{"rule":"zasada","ex":"przyklad","exT":"tlum","note":"wyjasnienie"}]}`;
+  try{
+    let content = [];
+    if(S.uploadFile && S.uploadFile.type.startsWith("image/")){
+      const b64 = await fileToB64(S.uploadFile);
+      content = [
+        {type:"image", source:{type:"base64", media_type:S.uploadFile.type, data:b64}},
+        {type:"text", text:PROMPT}
+      ];
+    } else if(S.uploadFile && S.uploadFile.type==="application/pdf"){
+      const b64 = await fileToB64(S.uploadFile);
+      content = [
+        {type:"document", source:{type:"base64", media_type:"application/pdf", data:b64}},
+        {type:"text", text:PROMPT}
+      ];
+    } else {
+      content = [{type:"text", text:PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
+    }
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:2000,messages:[{role:"user",content}]})
+    });
+    if(!res.ok) throw new Error("API blad "+res.status);
+    const data = await res.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g,"").trim();
+    const json = JSON.parse(clean);
+    json.id = "my_"+Date.now();
+    json.type = "dialog";
+    set({uploadProcessing:false, uploadStep:2, uploadPreview:json});
+  } catch(e){
+    set({uploadProcessing:false, uploadError:"Blad: "+e.message});
+  }
+}
+function fileToB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(",")[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
 function startPractice(lesson,mode){
   const cards=mode==="flashcard"?lesson.vocab:lesson.fill;
   set({screen:"practice",lesson,mode,cards,idx:0,revealed:false,
@@ -533,7 +597,147 @@ function renderLang(){
     card.appendChild(grid);
     w.appendChild(card);
   }
+  // ── MOJE LEKCJE ──────────────────────────────────────────────────────────
+  const myL = (S.myLessons[lang]||[]);
+  const mySection = h("div",{class:"card"});
+  mySection.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
+    h("div",{class:"sec-label",style:"margin:0"},"Moje lekcje ("+myL.length+")"),
+    h("button",{class:"play-btn",onclick:()=>set({showUpload:true,uploadLang:lang,uploadStep:0,uploadFile:null,uploadPreview:null,uploadError:"",uploadProcessing:false})},"+ Wgraj lekcję")
+  ));
+
+  if(myL.length===0){
+    mySection.appendChild(h("div",{style:"text-align:center;padding:20px 0;color:#ccc;font-size:13px"},
+      h("div",{style:"font-size:32px;margin-bottom:8px"},"📂"),
+      h("div",{},"Brak własnych lekcji"),
+      h("div",{style:"font-size:12px;margin-top:4px"},"Wgraj skan, PDF lub wklej tekst z podręcznika")
+    ));
+  }
+
+  for(let i=0;i<myL.length;i++){
+    const lesson=myL[i];
+    const lcard=h("div",{style:"border:1px solid #e8e8e4;border-radius:10px;padding:14px;margin-bottom:8px"});
+    lcard.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"},
+      h("div",{},
+        h("div",{style:"font-size:14px;font-weight:600"},lesson.title||"Bez tytułu"),
+        h("div",{style:"font-size:12px;color:#aaa;margin-top:1px"},(lesson.topic||"")+" · "+((lesson.vocab||[]).length)+" słówek")
+      ),
+      h("button",{style:"background:none;border:none;color:#ddd;cursor:pointer;font-size:16px",
+        onclick:()=>{if(confirm("Usunąć tę lekcję?"))deleteMyLesson(lang,i);}
+      },"✕")
+    ));
+    const lgrid=h("div",{class:"action-grid"});
+    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},
+      h("div",{class:"aicon"},"💬"),h("div",{class:"alabel"},"Dialog"),h("div",{class:"adesc"},"Czytaj i słuchaj")));
+    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"flashcard")},
+      h("div",{class:"aicon"},"🃏"),h("div",{class:"alabel"},"Fiszki"),h("div",{class:"adesc"},(lesson.vocab||[]).length+" słówek")));
+    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"fill")},
+      h("div",{class:"aicon"},"✏️"),h("div",{class:"alabel"},"Uzupełnianie"),h("div",{class:"adesc"},(lesson.fill||[]).length+" ćwiczeń")));
+    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"grammar"})},
+      h("div",{class:"aicon"},"📐"),h("div",{class:"alabel"},"Gramatyka"),h("div",{class:"adesc"},(lesson.grammar||[]).length+" zasad")));
+    lcard.appendChild(lgrid);
+    mySection.appendChild(lcard);
+  }
+  w.appendChild(mySection);
+
+  // Upload modal (inline, no fixed position)
+  if(S.showUpload && S.uploadLang===lang){
+    w.appendChild(renderUploadPanel());
+  }
+
   return w;
+}
+
+function renderUploadPanel(){
+  const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,anthKey}=S;
+  const panel=h("div",{style:"background:#fff;border:2px solid #2563eb;border-radius:14px;padding:20px;margin-bottom:12px"});
+
+  panel.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"},
+    h("div",{style:"font-size:15px;font-weight:700"},"📥 Wgraj własną lekcję — "+LANGS[uploadLang].flag),
+    h("button",{style:"background:none;border:none;font-size:20px;cursor:pointer;color:#aaa",onclick:()=>set({showUpload:false})},"✕")
+  ));
+
+  if(!anthKey){
+    panel.appendChild(h("div",{style:"background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:#92400e"},
+      "⚠️ Potrzebujesz klucza Anthropic API aby rozpoznawać treść z obrazów i PDF-ów.",
+      h("br",{}),h("br",{}),
+      "Wejdź w ",h("strong",{},"🎙️ Lektor")," → zakładka Anthropic API → wklej klucz."
+    ));
+  }
+
+  if(uploadStep===0){
+    // Step 1: choose input method
+    panel.appendChild(h("div",{class:"sec-label"},"Wybierz źródło materiału"));
+    const grid=h("div",{style:"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"});
+
+    // Image upload
+    const imgLabel=h("label",{style:"display:block;padding:16px;border-radius:12px;border:1px solid #e8e8e4;background:#fafafa;cursor:pointer;text-align:center"});
+    imgLabel.appendChild(h("div",{style:"font-size:26px;margin-bottom:4px"},"📸"));
+    imgLabel.appendChild(h("div",{style:"font-size:13px;font-weight:600;color:#444"},"Zdjęcie / Skan"));
+    imgLabel.appendChild(h("div",{style:"font-size:11px;color:#aaa;margin-top:2px"},"JPG, PNG"));
+    const imgInp=h("input",{type:"file",accept:"image/*",style:"display:none",
+      onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
+    imgLabel.appendChild(imgInp);
+    grid.appendChild(imgLabel);
+
+    // PDF upload
+    const pdfLabel=h("label",{style:"display:block;padding:16px;border-radius:12px;border:1px solid #e8e8e4;background:#fafafa;cursor:pointer;text-align:center"});
+    pdfLabel.appendChild(h("div",{style:"font-size:26px;margin-bottom:4px"},"📄"));
+    pdfLabel.appendChild(h("div",{style:"font-size:13px;font-weight:600;color:#444"},"Plik PDF"));
+    pdfLabel.appendChild(h("div",{style:"font-size:11px;color:#aaa;margin-top:2px"},"PDF"));
+    const pdfInp=h("input",{type:"file",accept:".pdf",style:"display:none",
+      onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
+    pdfLabel.appendChild(pdfInp);
+    grid.appendChild(pdfLabel);
+
+    panel.appendChild(grid);
+
+    // Text paste
+    panel.appendChild(h("div",{class:"sec-label"},"lub wklej tekst"));
+    const ta=h("textarea",{style:"width:100%;min-height:120px;padding:12px;border-radius:10px;border:1.5px solid #e8e8e4;background:#fafafa;font-size:13px;font-family:inherit;outline:none;resize:vertical",
+      placeholder:"Wklej tekst z podręcznika, dialog, słówka...",
+      oninput:(e)=>set({uploadPreview:e.target.value})});
+    panel.appendChild(ta);
+    if(S.uploadPreview && typeof S.uploadPreview==="string" && S.uploadPreview.length>10){
+      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:10px",onclick:()=>{set({uploadStep:1});processUpload();}},"🔍 Analizuj tekst"));
+    }
+  }
+
+  if(uploadStep===1 && uploadFile){
+    panel.appendChild(h("div",{style:"background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#166534"},
+      "✓ Wgrany: "+uploadFile.name+" ("+Math.round(uploadFile.size/1024)+" KB)"));
+    if(!uploadProcessing){
+      if(!anthKey){
+        panel.appendChild(h("div",{style:"font-size:13px;color:#dc2626;margin-bottom:10px"},"Brak klucza Anthropic API — nie można przetworzyć pliku."));
+      } else {
+        panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"🔍 Analizuj z AI"));
+      }
+    } else {
+      panel.appendChild(h("div",{style:"text-align:center;padding:20px;color:#2563eb;font-size:14px"},
+        "⏳ Claude analizuje materiał... (kilka sekund)"));
+    }
+  }
+
+  if(uploadError){
+    panel.appendChild(h("div",{style:"background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:#dc2626"},uploadError));
+  }
+
+  if(uploadStep===2 && uploadPreview && typeof uploadPreview==="object"){
+    const prev=uploadPreview;
+    panel.appendChild(h("div",{style:"background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;margin-bottom:14px"},
+      h("div",{style:"font-size:13px;font-weight:600;color:#166534;margin-bottom:8px"},"✓ Wykryto lekcję:"),
+      h("div",{style:"font-size:14px;font-weight:700"},prev.title||"Bez tytułu"),
+      h("div",{style:"font-size:12px;color:#666;margin-top:2px"},
+        (prev.level||"")+" · "+(prev.dialog||[]).length+" linii dialogu · "+(prev.vocab||[]).length+" słówek · "+(prev.grammar||[]).length+" zasad gramatyki"),
+      h("div",{style:"font-size:13px;color:#444;margin-top:8px;font-style:italic"},
+        (prev.dialog||[]).slice(0,2).map(d=>d.s+": "+d.l).join(" / "))
+    ));
+    const br=h("div",{style:"display:flex;gap:8px"});
+    br.appendChild(h("button",{class:"check-btn",style:"flex:2",onclick:()=>saveMyLesson(uploadLang,prev)},"✓ Zapisz lekcję"));
+    br.appendChild(h("button",{class:"next-btn",style:"margin:0;flex:1",onclick:()=>set({uploadStep:0,uploadFile:null,uploadPreview:null})},"← Wróć"));
+    panel.appendChild(br);
+  }
+
+  return panel;
 }
 
 function renderLesson(){
@@ -748,8 +952,33 @@ function renderSettings(){
   }
   if(elKey&&!elMsg)panel.appendChild(h("div",{class:"msg-ok"},"✓ ElevenLabs aktywny"));
 
+  // Anthropic API section
+  panel.appendChild(h("div",{style:"border-top:1px solid #f0f0ec;margin:18px 0"}));
+  panel.appendChild(h("div",{class:"settings-title"},"Anthropic API — rozpoznawanie skanów i PDF"));
+  panel.appendChild(h("div",{class:"settings-sub"},
+    "Wymagane do wgrywania własnych lekcji ze zdjęć i PDF-ów. Klucz dostępny na console.anthropic.com → API Keys."));
+  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",
+    value:S.anthKey||"",
+    oninput:(e)=>set({anthKey:e.target.value})});
+  panel.appendChild(aki);
+  if(S.anthKey){
+    panel.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne — możesz wgrywać materiały"));
+  }
+  const abr=h("div",{class:"row",style:"margin-bottom:16px"});
+  abr.appendChild(h("button",{class:"primary",onclick:()=>{
+    const k=S.anthKey.trim();
+    localStorage.setItem("lingua_anth_key",k);
+    set({anthKey:k});
+    alert("Klucz Anthropic zapisany!");
+  }},"✓ Zapisz klucz Anthropic"));
+  if(S.anthKey)abr.appendChild(h("button",{class:"sbtn danger",onclick:()=>{
+    localStorage.removeItem("lingua_anth_key");
+    set({anthKey:""});
+  }},"Usuń"));
+  panel.appendChild(abr);
+
   const br=h("div",{class:"row"});
-  br.appendChild(h("button",{class:"sbtn",onclick:testElKey},"Testuj klucz"));
+  br.appendChild(h("button",{class:"sbtn",onclick:testElKey},"Testuj klucz EL"));
   br.appendChild(h("button",{class:"primary",onclick:()=>{
     const k=S.elKeyInput.trim();
     localStorage.setItem("lingua_el_key",k);
