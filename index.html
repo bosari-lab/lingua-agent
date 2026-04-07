@@ -2,144 +2,602 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f0f0f">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinguaAgent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+html, body { background: #0f0f0f !important; color: #f0ede8 !important; color-scheme: dark; }
+:root{
+  --bg:#0f0f0f;
+  --bg2:#161616;
+  --bg3:#1e1e1e;
+  --surface:#1a1a1a;
+  --surface2:#222222;
+  --border:#2a2a2a;
+  --border2:#383838;
+  --text:#f0ede8;
+  --text2:#b8b4ac;
+  --text3:#6a6660;
+  --gold:#c9a96e;
+  --gold2:#e8c990;
+  --gold-dim:#3d2e18;
+  --ok:#2d5a3d;
+  --ok-text:#7dd8a0;
+  --err:#5a2d2d;
+  --err-text:#f09090;
+  --r:4px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh}
-.app{max-width:620px;margin:0 auto;padding:14px}
+html{scroll-behavior:smooth}
+html{background:#0f0f0f !important}
+body{
+  font-family:'Jost',system-ui,sans-serif;
+  background:#0f0f0f !important;
+  color:var(--text);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  font-size:14px;
+  line-height:1.6;
+}
 
-/* HEADER */
-.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-radius:14px;border:1px solid #e8e8e4;margin-bottom:14px}
-.logo{font-weight:700;font-size:17px;letter-spacing:-.3px}
-.logo span{color:#2563eb}
-.hbtn{padding:6px 12px;border-radius:20px;border:1px solid #e8e8e4;background:#fff;color:#666;cursor:pointer;font-size:12px;font-family:inherit}
-.hbtn:hover{background:#f7f7f5}
-.hbtn.on{background:#ecfdf5;color:#166534;border-color:#a7f3d0}
+/* ── TOPNAV ── */
+.topnav{
+  width:100%;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:rgba(15,15,15,.95);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:400;
+  letter-spacing:.02em;color:var(--text);
+}
+.logo em{font-style:italic;color:var(--gold)}
+.hbtn{
+  padding:7px 16px;
+  border:1px solid var(--border2);
+  background:transparent;color:var(--text3);
+  cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  transition:all .2s;border-radius:2px;
+}
+.hbtn:hover{border-color:var(--gold);color:var(--gold)}
+.hbtn.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
 
-/* LANG TABS */
-.lang-tabs{display:flex;gap:0;background:#fff;border-radius:14px;border:1px solid #e8e8e4;margin-bottom:14px;overflow:hidden}
-.lang-tab{flex:1;padding:14px 8px;border:none;background:transparent;cursor:pointer;font-size:14px;font-family:inherit;color:#888;border-right:1px solid #e8e8e4;transition:all .15s;text-align:center}
-.lang-tab:last-child{border-right:none}
-.lang-tab:hover{background:#f7f7f5;color:#444}
-.lang-tab.sel{background:#eff6ff;color:#1d4ed8;font-weight:700}
-.lang-flag{font-size:22px;display:block;margin-bottom:3px}
-.lang-name{font-size:11px;letter-spacing:.5px}
+/* ── LANG TABS ── */
+.lang-hero{
+  width:100%;
+  display:flex;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+  padding:0 40px;
+}
+.lang-tab{
+  padding:16px 28px 14px;
+  border:none;border-bottom:1px solid transparent;
+  background:transparent;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:11px;font-weight:400;
+  color:var(--text3);letter-spacing:.12em;text-transform:uppercase;
+  transition:all .2s;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:-1px;
+}
+.lang-tab:hover{color:var(--text2)}
+.lang-tab.sel{color:var(--gold);border-bottom-color:var(--gold)}
+.lang-flag{font-size:16px}
+.lang-name{font-size:11px}
 
-/* CARDS */
-.card{background:#fff;border-radius:14px;border:1px solid #e8e8e4;padding:18px;margin-bottom:12px}
-.card-title{font-size:16px;font-weight:700;margin-bottom:2px}
-.card-meta{font-size:12px;color:#aaa;margin-bottom:14px}
-.sec-label{font-size:10px;color:#bbb;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+/* ── MAIN ── */
+.main{width:100%;max-width:1000px;margin:0 auto;padding:48px 40px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.main>*{animation:fadeIn .35s ease both}
+.main>*:nth-child(2){animation-delay:.05s}
+.main>*:nth-child(3){animation-delay:.1s}
 
-/* LESSON ACTION BUTTONS */
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.action-btn{padding:13px 10px;border-radius:12px;border:1px solid #e8e8e4;background:#fafafa;cursor:pointer;text-align:center;font-family:inherit;transition:all .15s}
-.action-btn:hover{background:#f0f0ec;border-color:#ccc}
-.action-btn .aicon{font-size:22px;margin-bottom:4px}
-.action-btn .alabel{font-size:12px;font-weight:600;color:#444}
-.action-btn .adesc{font-size:11px;color:#aaa;margin-top:1px}
+/* ── TYPOGRAPHY ── */
+.page-title{
+  font-family:'Playfair Display',serif;
+  font-size:36px;font-weight:400;letter-spacing:-.01em;
+  color:var(--text);margin-bottom:6px;line-height:1.15;
+}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:40px;letter-spacing:.06em;text-transform:uppercase}
+.section-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:400;color:var(--text);
+}
+.sec-label{font-size:10px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
 
-/* BACK NAV */
-.back-btn{background:none;border:none;color:#888;cursor:pointer;font-size:13px;font-family:inherit;padding:4px 0;margin-bottom:12px;display:flex;align-items:center;gap:4px}
-.back-btn:hover{color:#1a1a1a}
+/* ── LESSON GRID ── */
+.lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:48px}
+.lesson-cell{background:var(--surface);transition:background .2s}
+.lesson-cell:hover{background:var(--surface2)}
+.lesson-cell-body{padding:28px 28px 22px}
+.lesson-num{font-size:10px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
+.lesson-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:400;color:var(--text);margin-bottom:4px;
+}
+.lesson-topic{font-size:12px;color:var(--text3);margin-bottom:20px}
+.level-pill{
+  display:inline-block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  padding:3px 10px;border:1px solid var(--border2);color:var(--text3);
+}
 
-/* DIALOG */
-.dialog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.play-btn{padding:7px 16px;border-radius:20px;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
-.play-btn:hover{background:#dbeafe}
-.stop-btn{padding:7px 16px;border-radius:20px;border:1px solid #fca5a5;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
-.dline{padding:12px 0;border-bottom:1px solid #f0f0ec;transition:background .2s}
+/* ── ACTION STRIP ── */
+.action-strip{display:flex;border-top:1px solid var(--border)}
+.action-btn{
+  flex:1;padding:13px 8px;border:none;border-right:1px solid var(--border);
+  background:transparent;cursor:pointer;font-family:'Jost',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:background .15s;
+}
+.action-btn:last-child{border-right:none}
+.action-btn:hover{background:var(--bg3)}
+.aicon{font-size:16px;opacity:.6}
+.alabel{font-size:10px;font-weight:500;color:var(--text2);letter-spacing:.08em;text-transform:uppercase}
+.adesc{font-size:10px;color:var(--text3)}
+
+/* ── SECTION HEAD ── */
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:16px;margin-bottom:24px;
+  border-bottom:1px solid var(--border);
+}
+.add-btn{
+  padding:7px 18px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  transition:all .2s;border-radius:2px;
+}
+.add-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── MY LESSON ROW ── */
+.my-lesson-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0;border-bottom:1px solid var(--border);
+}
+.my-lesson-row:last-child{border-bottom:none}
+.my-lesson-title{font-size:14px;font-weight:400;color:var(--text);margin-bottom:2px}
+.my-lesson-meta{font-size:11px;color:var(--text3);letter-spacing:.04em}
+.my-lesson-actions{display:flex;gap:8px}
+
+/* ── BACK BTN ── */
+.back-btn{
+  background:none;border:none;color:var(--text3);cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:0;margin-bottom:32px;display:flex;align-items:center;gap:8px;transition:color .2s;
+}
+.back-btn:hover{color:var(--gold)}
+
+/* ── LESSON VIEW ── */
+.lesson-header{margin-bottom:40px}
+.dialog-wrap{max-width:700px}
+.dialog-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);
+}
+.dialog-label{font-size:10px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase}
+.play-btn{
+  padding:8px 22px;border:1px solid var(--gold);
+  background:transparent;color:var(--gold);cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  transition:all .2s;border-radius:2px;
+}
+.play-btn:hover{background:var(--gold-dim)}
+.stop-btn{
+  padding:8px 22px;border:1px solid var(--err-text);
+  background:transparent;color:var(--err-text);cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:2px;
+}
+.dline{
+  display:grid;grid-template-columns:100px 1fr;gap:12px 24px;
+  padding:18px 0;border-bottom:1px solid var(--border);transition:all .15s;
+}
 .dline:last-child{border-bottom:none}
-.dline.active{background:#eff6ff;margin:0 -18px;padding:12px 18px;border-radius:8px}
-.spk{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#bbb;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
-.spk.me{color:#2563eb}
-.spk-btn{background:none;border:none;cursor:pointer;font-size:14px;opacity:.4;font-family:inherit}
+.dline.active{background:var(--bg3);margin:0 -20px;padding:18px 20px;border-radius:4px}
+.spk{
+  font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--text3);padding-top:3px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+}
+.spk.me{color:var(--gold)}
+.spk-btn{background:none;border:none;cursor:pointer;font-size:13px;opacity:.3;transition:opacity .15s}
 .spk-btn:hover{opacity:1}
+.dline-orig{font-size:15px;color:var(--text);margin-bottom:4px;line-height:1.55}
+.dline-tr{font-size:12px;color:var(--text3);font-style:italic}
 
-/* VOCAB */
-.vrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f0f0ec}
+/* ── VOCAB ── */
+.vocab-wrap{max-width:700px;margin-top:52px}
+.vrow{
+  display:grid;grid-template-columns:28px 1fr 1fr;gap:12px 24px;
+  align-items:start;padding:14px 0;border-bottom:1px solid var(--border);
+}
 .vrow:last-child{border-bottom:none}
+.v-word{font-size:14px;font-weight:500;color:var(--text)}
+.v-tr{font-size:13px;color:var(--gold)}
+.v-ipa{font-family:monospace;font-size:11px;color:var(--text3);margin-top:2px}
 
-/* FLASHCARD */
-.fc{width:100%;min-height:230px;border-radius:14px;border:2px solid #e8e8e4;background:#fff;padding:28px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;gap:8px;transition:all .2s;margin-bottom:10px}
-.fc:hover{border-color:#93c5fd}
-.fc.open{border-color:#2563eb;background:#eff6ff}
-.fc-lang{font-size:10px;color:#bbb;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
-.fc-word{font-size:30px;font-weight:700}
-.fc-tr{font-size:19px;font-weight:600;color:#2563eb}
-.fc-ipa{font-family:monospace;font-size:13px;color:#aaa}
-.fc-pl{font-size:12px;padding:3px 14px;border-radius:20px;background:#f7f7f5;border:1px solid #e8e8e4;color:#666}
-.fc-ex{font-size:13px;color:#888;font-style:italic;border-top:1px solid #e8e8e4;padding-top:10px;margin-top:6px;width:100%;text-align:left}
-.fc-ex-tr{font-size:12px;color:#bbb;margin-top:2px}
-.hint{color:#ccc;font-size:13px;margin-top:8px}
-.dir-row{display:flex;gap:6px;justify-content:flex-end;margin-bottom:10px}
-.dir-btn{padding:4px 11px;border-radius:20px;border:1px solid #e8e8e4;background:#fff;color:#aaa;cursor:pointer;font-size:12px;font-family:inherit}
-.dir-btn.sel{border-color:#2563eb;color:#2563eb;background:#eff6ff;font-weight:600}
-.ans-row{display:flex;gap:10px;margin-top:2px}
-.btn-no{flex:1;padding:11px;border-radius:10px;border:none;background:#fee2e2;color:#991b1b;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit}
-.btn-no:hover{background:#fecaca}
-.btn-yes{flex:1;padding:11px;border-radius:10px;border:none;background:#dcfce7;color:#166534;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit}
-.btn-yes:hover{background:#bbf7d0}
+/* ── GRAMMAR ── */
+.grammar-wrap{max-width:700px}
+.grammar-block{padding:20px 0;border-bottom:1px solid var(--border)}
+.grammar-block:last-child{border-bottom:none}
+.grammar-rule{
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:400;color:var(--text);margin-bottom:8px;
+}
+.grammar-ex{font-size:13px;color:var(--text2);font-style:italic;margin-bottom:3px}
+.grammar-extr{font-size:12px;color:var(--text3);margin-bottom:8px}
+.grammar-note{
+  font-size:12px;color:var(--text2);
+  border-left:2px solid var(--gold);padding:10px 14px;
+  background:var(--gold-dim);line-height:1.7;
+}
 
-/* FILL */
-.fill-card{background:#fff;border-radius:14px;border:1px solid #e8e8e4;padding:20px;margin-bottom:10px}
-.fill-sentence{font-size:19px;margin-bottom:18px;line-height:1.9}
-.fill-inp{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #e8e8e4;background:#fafafa;color:#1a1a1a;font-size:14px;outline:none;font-family:inherit}
-.fill-inp:focus{border-color:#93c5fd;background:#fff}
-.fill-inp.ok{border-color:#4ade80;background:#f0fdf4}
-.fill-inp.bad{border-color:#f87171;background:#fff5f5}
-.feedback{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500}
-.feedback.ok{background:#dcfce7;color:#166534}
-.feedback.bad{background:#fee2e2;color:#991b1b}
-.next-btn{width:100%;margin-top:10px;padding:11px;border-radius:10px;border:1.5px solid #93c5fd;background:#eff6ff;color:#2563eb;cursor:pointer;font-weight:600;font-size:14px;font-family:inherit}
-.next-btn:hover{background:#dbeafe}
-.check-btn{width:100%;padding:11px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-weight:600;font-size:14px;font-family:inherit;margin-top:10px}
+/* ── PROGRESS ── */
+.prog-info{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);letter-spacing:.06em;margin-bottom:8px}
+.prog-bar{height:1px;background:var(--border2);margin-bottom:36px}
+.prog-fill{height:100%;background:var(--gold);transition:width .4s}
 
-/* GRAMMAR */
-.grammar-block{border-left:3px solid #2563eb;padding:10px 14px;margin-bottom:12px;background:#f8faff;border-radius:0 10px 10px 0}
-.grammar-rule{font-size:14px;font-weight:600;margin-bottom:4px}
-.grammar-ex{font-size:13px;color:#666;font-style:italic}
-.grammar-extr{font-size:12px;color:#aaa;margin-top:2px}
+/* ── FLASHCARD ── */
+.fc-wrap{max-width:580px}
+.dir-row{display:flex;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:24px}
+.dir-btn{
+  flex:1;padding:9px;border:none;background:var(--surface);
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:all .15s;
+}
+.dir-btn:hover{color:var(--text2)}
+.dir-btn.sel{background:var(--gold-dim);color:var(--gold)}
+.fc{
+  width:100%;min-height:280px;
+  border:1px solid var(--border2);background:var(--surface);
+  padding:48px 40px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;cursor:pointer;gap:10px;transition:all .25s;margin-bottom:16px;
+  position:relative;
+}
+.fc::after{
+  content:'';position:absolute;inset:8px;
+  border:1px solid transparent;pointer-events:none;transition:border-color .25s;
+}
+.fc:hover::after{border-color:var(--border2)}
+.fc.open{background:var(--bg3);border-color:var(--gold)}
+.fc.open::after{border-color:var(--gold-dim)}
+.fc-lang{font-size:9px;color:var(--text3);letter-spacing:.25em;text-transform:uppercase;margin-bottom:6px}
+.fc-word{
+  font-family:'Playfair Display',serif;
+  font-size:40px;font-weight:400;color:var(--text);line-height:1.1;
+}
+.fc-tr{
+  font-family:'Playfair Display',serif;
+  font-size:26px;font-style:italic;color:var(--gold);
+}
+.fc-ipa{font-family:monospace;font-size:12px;color:var(--text3);margin-top:2px}
+.fc-pl{
+  font-size:12px;padding:4px 16px;
+  border:1px solid var(--gold-dim);color:var(--gold);
+  background:transparent;display:inline-block;margin-top:4px;
+}
+.fc-ex{
+  font-size:13px;color:var(--text3);font-style:italic;
+  border-top:1px solid var(--border);padding-top:14px;
+  margin-top:10px;width:100%;text-align:left;
+}
+.fc-ex-tr{font-size:12px;color:var(--text3);opacity:.7;margin-top:3px}
+.hint{color:var(--text3);font-size:12px;letter-spacing:.06em;margin-top:12px}
+.ans-row{display:flex;gap:1px;background:var(--border)}
+.btn-no{
+  flex:1;padding:14px;border:none;background:var(--surface);
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .15s;
+}
+.btn-no:hover{background:var(--err);color:var(--err-text)}
+.btn-yes{
+  flex:1;padding:14px;border:none;background:var(--surface);
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .15s;
+}
+.btn-yes:hover{background:var(--ok);color:var(--ok-text)}
 
-/* PROGRESS */
-.prog-info{display:flex;justify-content:space-between;font-size:12px;color:#bbb;margin-bottom:5px}
-.prog-bar{height:5px;background:#f0f0ec;border-radius:3px;margin-bottom:14px}
-.prog-fill{height:100%;border-radius:3px;background:#2563eb;transition:width .3s}
+/* ── FILL ── */
+.fill-wrap{max-width:640px}
+.fill-hint{font-size:11px;color:#b8b4ac !important;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.fill-sentence{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:500;
+  color:#f0ede8 !important;
+  margin-bottom:28px;line-height:1.5;
+}
+.fill-inp{
+  width:100%;padding:14px 18px;
+  border:1px solid var(--border2);border-bottom:2px solid var(--gold);
+  background:var(--surface);color:var(--text);
+  font-size:15px;font-family:'Jost',sans-serif;
+  outline:none;transition:border-color .2s;border-radius:0;
+}
+.fill-inp:focus{border-bottom-color:var(--gold2)}
+.fill-inp.ok{border-bottom-color:var(--ok-text)}
+.fill-inp.bad{border-bottom-color:var(--err-text)}
+.feedback{margin-top:12px;padding:12px 16px;font-size:13px}
+.feedback.ok{background:var(--ok);color:var(--ok-text);border-left:2px solid var(--ok-text)}
+.feedback.bad{background:var(--err);color:var(--err-text);border-left:2px solid var(--err-text)}
+.next-btn{
+  width:100%;margin-top:12px;padding:13px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:all .2s;
+}
+.next-btn:hover{border-color:var(--gold);color:var(--gold)}
+.check-btn{
+  width:100%;padding:13px;border:none;
+  background:var(--gold-dim);border:1px solid var(--gold);
+  color:var(--gold);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  margin-top:12px;transition:all .2s;
+}
+.check-btn:hover{background:var(--gold);color:var(--bg)}
 
-/* RESULTS */
-.result-card{background:#fff;border-radius:14px;border:1px solid #e8e8e4;padding:36px 24px;text-align:center}
+/* ── RESULTS ── */
+.result-wrap{max-width:480px;padding:72px 0;text-align:center}
+.result-emoji{font-size:52px;margin-bottom:20px;display:block}
+.result-title{
+  font-family:'Playfair Display',serif;
+  font-size:42px;font-weight:400;margin-bottom:8px;
+}
+.result-sub{font-size:13px;color:var(--text3);letter-spacing:.06em;margin-bottom:40px}
+.result-btns{display:flex;gap:1px;background:var(--border)}
+.result-btn{
+  flex:1;padding:14px;border:none;background:var(--surface);
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .15s;
+}
+.result-btn:hover{background:var(--surface2);color:var(--text)}
+.result-btn.primary{background:var(--gold-dim);color:var(--gold)}
+.result-btn.primary:hover{background:var(--gold);color:var(--bg)}
 
-/* SETTINGS PANEL (inline, no fixed) */
-.settings-panel{background:#fff;border-radius:14px;border:1px solid #e8e8e4;padding:20px;margin-bottom:12px}
-.settings-title{font-size:15px;font-weight:700;margin-bottom:4px}
-.settings-sub{font-size:12px;color:#aaa;margin-bottom:16px;line-height:1.5}
-.key-inp{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #e8e8e4;background:#fafafa;color:#1a1a1a;font-family:monospace;font-size:13px;outline:none;margin-bottom:6px}
-.key-inp:focus{border-color:#93c5fd}
-.row{display:flex;gap:8px;align-items:center}
-.sbtn{padding:9px 14px;border-radius:10px;border:1px solid #e8e8e4;background:#fff;color:#666;cursor:pointer;font-size:13px;font-family:inherit}
-.sbtn:hover{background:#f7f7f5}
-.sbtn.danger{color:#dc2626;border-color:#fca5a5}
-.msg-ok{padding:9px 14px;border-radius:10px;background:#dcfce7;color:#166534;font-size:13px;font-weight:500;margin:8px 0}
-.msg-err{padding:9px 14px;border-radius:10px;background:#fee2e2;color:#991b1b;font-size:13px;font-weight:500;margin:8px 0}
-.primary{flex:1;padding:10px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-weight:600;font-size:14px;font-family:inherit}
-.primary:hover{opacity:.9}
+/* ── SETTINGS ── */
+.settings-wrap{max-width:580px}
+.settings-title{
+  font-family:'Playfair Display',serif;
+  font-size:26px;font-weight:400;margin-bottom:4px;
+}
+.settings-sub{font-size:12px;color:var(--text3);margin-bottom:28px;line-height:1.7;letter-spacing:.02em}
+.eng-grid{display:flex;gap:1px;background:var(--border);margin-bottom:32px}
+.eng-btn{
+  flex:1;padding:16px 10px;border:none;background:var(--surface);
+  cursor:pointer;font-family:'Jost',sans-serif;transition:background .15s;text-align:center;
+}
+.eng-btn:hover{background:var(--surface2)}
+.eng-btn.sel{background:var(--gold-dim)}
+.eng-name{font-size:12px;font-weight:500;color:var(--text3);margin-bottom:3px;letter-spacing:.04em}
+.eng-btn.sel .eng-name{color:var(--gold)}
+.eng-desc{font-size:10px;color:var(--text3);opacity:.6}
+.voice-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;
+}
+.voice-row:last-child{border-bottom:none}
+.v-name{font-size:13px;color:var(--text2);transition:color .15s}
+.v-desc{font-size:11px;color:var(--text3);margin-top:1px}
+.sel-row .v-name{color:var(--gold)}
+.voice-dot{
+  width:7px;height:7px;border-radius:50%;
+  border:1px solid var(--border2);flex-shrink:0;transition:all .15s;
+}
+.sel-row .voice-dot{background:var(--gold);border-color:var(--gold)}
+.key-inp{
+  width:100%;padding:12px 16px;
+  border:1px solid var(--border);border-bottom:2px solid var(--border2);
+  background:var(--surface);color:var(--text);
+  font-family:monospace;font-size:13px;
+  outline:none;margin-bottom:6px;transition:border-color .2s;border-radius:0;
+}
+.key-inp:focus{border-bottom-color:var(--gold)}
+.msg-ok{padding:10px 14px;background:var(--ok);color:var(--ok-text);font-size:12px;border-radius:0;margin-bottom:10px;border-left:2px solid var(--ok-text)}
+.msg-err{padding:10px 14px;background:var(--err);color:var(--err-text);font-size:12px;border-radius:0;margin-bottom:10px;border-left:2px solid var(--err-text)}
+.sbtn{
+  padding:8px 16px;border:1px solid var(--border2);background:transparent;
+  color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:all .15s;border-radius:2px;
+}
+.sbtn:hover{border-color:var(--text3);color:var(--text)}
+.sbtn.danger{border-color:var(--err-text);color:var(--err-text)}
+.primary{
+  padding:10px 22px;border:1px solid var(--gold);background:var(--gold-dim);
+  color:var(--gold);cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  transition:all .2s;border-radius:2px;
+}
+.primary:hover{background:var(--gold);color:var(--bg)}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.settings-divider{border:none;border-top:1px solid var(--border);margin:28px 0}
 
-/* VOICE ROWS */
-.vtest-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0ec}
-.vtest-row:last-child{border-bottom:none}
+/* ── UPLOAD ── */
+.upload-panel{
+  background:var(--surface);
+  border:1px solid var(--border);border-top:2px solid var(--gold);
+  padding:28px;margin-bottom:20px;
+}
+.upload-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:400;margin-bottom:4px;
+}
+.upload-sub{font-size:12px;color:var(--text3);margin-bottom:20px;letter-spacing:.02em}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px}
+.upload-opt{
+  background:var(--surface);padding:22px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  text-align:center;transition:background .15s;
+}
+.upload-opt:hover{background:var(--surface2)}
+.uicon{font-size:26px;opacity:.5}
+.ulabel{font-size:12px;font-weight:500;color:var(--text2);letter-spacing:.04em}
+.udesc{font-size:11px;color:var(--text3)}
+
+/* ── FILMOTEKA ── */
+.film-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:32px}
+.film-card{background:var(--surface);transition:background .15s;cursor:pointer}
+.film-card:hover{background:var(--surface2)}
+.film-badge{
+  display:inline-block;font-size:9px;font-weight:500;
+  padding:2px 8px;border:1px solid var(--border2);
+  color:var(--text3);margin-right:4px;margin-bottom:10px;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.film-title{
+  font-family:'Playfair Display',serif;
+  font-size:17px;font-weight:400;color:var(--text);margin-bottom:4px;
+}
+.film-meta{font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:.04em}
+.film-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.film-scene{font-size:11px;color:var(--gold);font-style:italic;border-top:1px solid var(--border);padding-top:10px}
+.film-body{padding:22px}
+.film-strip{display:flex;border-top:1px solid var(--border)}
+.film-action{
+  flex:1;padding:11px 8px;border:none;border-right:1px solid var(--border);
+  background:transparent;cursor:pointer;font-family:'Jost',sans-serif;
+  font-size:10px;font-weight:500;color:var(--text3);
+  letter-spacing:.1em;text-transform:uppercase;transition:all .15s;text-align:center;
+}
+.film-action:last-child{border-right:none}
+.film-action:hover{background:var(--bg3);color:var(--gold)}
+.upload-film-area{
+  border:1px dashed var(--border2);padding:40px 20px;text-align:center;
+  cursor:pointer;transition:all .2s;margin-bottom:16px;
+}
+.upload-film-area:hover{border-color:var(--gold);background:var(--gold-dim)}
+.upload-film-icon{font-size:36px;opacity:.4;margin-bottom:12px}
+.upload-film-title{font-size:14px;color:var(--text2);margin-bottom:4px;letter-spacing:.02em}
+.upload-film-sub{font-size:12px;color:var(--text3)}
+.video-player{width:100%;border-radius:4px;background:#000;max-height:380px}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:56px 20px}
+.empty-icon{font-size:32px;opacity:.25;margin-bottom:12px}
+.empty-text{font-size:13px;color:var(--text3);margin-bottom:4px}
+.empty-sub{font-size:12px;color:var(--text3);opacity:.6}
+
+/* ── RESPONSIVE ── */
+@media(max-width:720px){
+  .topnav,.lang-hero{padding-left:20px;padding-right:20px}
+  .main{padding:28px 20px}
+  .lesson-grid,.film-grid{grid-template-columns:1fr}
+  .page-title{font-size:26px}
+  .dline{grid-template-columns:72px 1fr}
+  .eng-grid{flex-direction:column}
+}
+media(max-width:700px){
+  .topnav{padding:12px 16px}
+  .lang-hero{padding:0 16px}
+  .main{padding:24px 16px}
+  .lesson-grid{grid-template-columns:1fr}
+  .page-title{font-size:20px}
+  .eng-grid{flex-direction:column}
+}
+
 </style>
+</head>
 </head>
 <body>
 <div class="app" id="root"></div>
 <script>
+// ── INDEXEDDB FOR VIDEO FILES ─────────────────────────────────────────────────
+const DB_NAME="lingua_db", DB_VER=1, STORE="videos";
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE);
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+async function saveVideo(key,blob){
+  const db=await openDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).put(blob,key);
+    tx.oncomplete=()=>res();
+    tx.onerror=e=>rej(e.target.error);
+  });
+}
+async function loadVideo(key){
+  const db=await openDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(STORE,"readonly");
+    const r=tx.objectStore(STORE).get(key);
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+async function deleteVideo(key){
+  const db=await openDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).delete(key);
+    tx.oncomplete=()=>res();
+    tx.onerror=e=>rej(e.target.error);
+  });
+}
+
 const LANGS={EN:{name:"English",flag:"🇬🇧"},FR:{name:"Français",flag:"🇫🇷"},IT:{name:"Italiano",flag:"🇮🇹"}};
 const LANG_BCP={EN:"en-GB",FR:"fr-FR",IT:"it-IT"};
 // ElevenLabs voice IDs
+// eleven_multilingual_v2 works with all languages using same voice IDs
+// Female: Sarah (young, soft, conversational) | Male: Daniel (british, deep, natural)
 const EL_VOICES={
-  EN:{id:"EXAVITQu4vr4xnSDxMaL",name:"Sarah",desc:"British English"},
-  FR:{id:"fr-FR-Standard-A",name:"Charlotte",desc:"Français"},  
-  IT:{id:"cgSgspJ2msm6clMCkdW9",name:"Jessica",desc:"Italiano"}
+  EN:{
+    female:{id:"EXAVITQu4vr4xnSDxMaL",name:"Sarah"},
+    male:{id:"onwK4e9ZLuTAKqWW03F9",name:"Daniel"}
+  },
+  FR:{
+    female:{id:"EXAVITQu4vr4xnSDxMaL",name:"Sarah"},
+    male:{id:"onwK4e9ZLuTAKqWW03F9",name:"Daniel"}
+  },
+  IT:{
+    female:{id:"EXAVITQu4vr4xnSDxMaL",name:"Sarah"},
+    male:{id:"onwK4e9ZLuTAKqWW03F9",name:"Daniel"}
+  }
+};
+// Pick voice based on speaker name
+function getVoiceId(lang, speakerName){
+  const isAleksandra = speakerName.toLowerCase().includes("aleksandra");
+  return isAleksandra ? EL_VOICES[lang].female.id : EL_VOICES[lang].male.id;
+}
+
+
+// ── FILMOTEKA ─────────────────────────────────────────────────────────────────
+const FILMS = {
+  EN: [
+    { id:"friends",    title:"Friends",            type:"serial",  level:"A2-B1", platform:"Netflix",  desc:"Codzienna angielszczyzna, slang, humor. Idealne dla średniozaawansowanych.", scene:"The One Where Nobody's Ready — kłótnia o wyjście na galę." },
+    { id:"crown",      title:"The Crown",          type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Elegancki angielski, formalny styl, akcent brytyjski.", scene:"Scena koronacji — ceremonialne słownictwo." },
+    { id:"fleabag",    title:"Fleabag",            type:"serial",  level:"B1-B2", platform:"Prime",    desc:"Współczesny brytyjski angielski, monologi, dowcip.", scene:"Monolog w kawiarni — naturalne wyrażenia." },
+    { id:"downton",    title:"Downton Abbey",      type:"serial",  level:"B2",    platform:"Prime",    desc:"Klasyczny angielski, Edwardian English, różne klasy społeczne.", scene:"Kolacja z rodziną — etykieta i tytuły." },
+    { id:"bridgerton", title:"Bridgerton",         type:"serial",  level:"B1-B2", platform:"Netflix",  desc:"Regency English, romantyczne dialogi, Ton angielski.", scene:"Bal debiutantek — przedstawianie się." },
+  ],
+  FR: [
+    { id:"lupin",      title:"Lupin",              type:"serial",  level:"A2-B1", platform:"Netflix",  desc:"Naturalny francuski, łatwy do zrozumienia. Omar Sy mówi wyraźnie.", scene:"Scena w Luwrze — pytanie o drogę, wyrażenia złodziejskie." },
+    { id:"amelie",     title:"Amélie",             type:"film",    level:"B1-B2", platform:"Prime",    desc:"Poetycki paryski francuski, narracja, wyrażenia potoczne.", scene:"Opis postaci — przymiotniki i cechy charakteru." },
+    { id:"intouchables",title:"Intouchables",      type:"film",    level:"B1",    platform:"Netflix",  desc:"Kontrast slangu (Driss) i formalnego języka (Philippe). Idealne!", scene:"Rozmowa kwalifikacyjna — humor i formalności." },
+    { id:"emily",      title:"Emily in Paris",     type:"serial",  level:"A1-A2", platform:"Netflix",  desc:"Prosty francuski, dużo angielskiego, idealne dla początkujących.", scene:"W kawiarni — zamawianie, nieporozumienia kulturowe." },
+    { id:"dix",        title:"Dix pour cent",      type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Paryski slang show-biznesu, szybkie dialogi, humor.", scene:"Negocjacje kontraktu — biznesowe zwroty." },
+  ],
+  IT: [
+    { id:"vita_bella", title:"La Vita è Bella",    type:"film",    level:"B1-B2", platform:"Netflix",  desc:"Toskański akcent, prosty słownik, bardzo ekspresyjne dialogi.", scene:"Scena w restauracji — zamówienie, komplementy." },
+    { id:"suburra",    title:"Suburra",            type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Rzymski slang, dialekt, świat przestępczy. Dla zaawansowanych.", scene:"Spotkanie w barze — negocjacje, groźby." },
+    { id:"perfetti",   title:"Perfetti Sconosciuti", type:"film",  level:"B1",    platform:"Prime",    desc:"Naturalny włoski przy kolacji — idealny do shadowing.", scene:"Kolacja u znajomych — żarty, wyrażenia potoczne." },
+    { id:"era_ora",    title:"Era Ora",            type:"film",    level:"A2-B1", platform:"Netflix",  desc:"Codzienny włoski, proste zdania, ekspresje emocjonalne.", scene:"Rozmowa z rodziną — emocje, codzienne życie." },
+    { id:"maraviglioso",title:"Maraviglioso Boccaccio",type:"film",level:"B2",   platform:"Mubi",     desc:"Klasyczny włoski, bogaty słownik, piękna wymowa.", scene:"Opowieść miłosna — romantyczne zwroty." },
+  ],
 };
 
 const COURSE={
@@ -321,6 +779,14 @@ let S={
   score:{c:0,t:0},input:"",submitted:false,
   playingLine:-1,playing:false,abort:{v:false},
   elKey:localStorage.getItem("lingua_el_key")||"",
+  oaiKey:localStorage.getItem("lingua_oai_key")||"",
+  oaiVoiceFemale:localStorage.getItem("lingua_oai_vf")||"nova",
+  oaiVoiceMale:localStorage.getItem("lingua_oai_vm")||"echo",
+  ttsEngine:localStorage.getItem("lingua_tts")||"oai",
+  // Per-lesson audio: { lessonId: { full: dataUrl, female: dataUrl, male: dataUrl } }
+  lessonAudio:(()=>{try{return JSON.parse(localStorage.getItem("lingua_audio")||"{}")}catch{return {}}})(),
+  audioPlaying:false, audioObj:null, audioMgrLesson:null,
+  showFilmoteka:false, filmUploadStep:0, filmFile:null, filmProcessing:false, filmError:"", filmLang:"FR",
   anthKey:localStorage.getItem("lingua_anth_key")||"",
   myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
   showUpload:false,uploadLang:"FR",uploadStep:0,uploadFile:null,uploadPreview:null,uploadProcessing:false,uploadError:"",
@@ -356,13 +822,13 @@ function browserSpeak(text,lang){
   });
 }
 
-async function elSpeak(text,lang){
-  const vid=EL_VOICES[lang].id;
+async function elSpeak(text,lang,voiceId){
+  const vid=voiceId||EL_VOICES[lang].female.id;
   const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}`,{
     method:"POST",
     headers:{"xi-api-key":S.elKey,"Content-Type":"application/json"},
     body:JSON.stringify({text,model_id:"eleven_multilingual_v2",
-      voice_settings:{stability:0.45,similarity_boost:0.82,style:0.25,use_speaker_boost:true}})
+      voice_settings:{stability:0.35,similarity_boost:0.75,style:0.45,use_speaker_boost:true}})
   });
   if(!r.ok)throw new Error("EL "+r.status);
   const blob=await r.blob();
@@ -375,9 +841,38 @@ async function elSpeak(text,lang){
   });
 }
 
-async function speak(text,lang){
-  try{if(S.elKey)await elSpeak(text,lang);else await browserSpeak(text,lang);}
-  catch(e){console.log("EL err, fallback:",e.message);await browserSpeak(text,lang);}
+async function oaiSpeak(text, voiceId){
+  const r = await fetch("https://api.openai.com/v1/audio/speech",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+S.oaiKey},
+    body:JSON.stringify({model:"tts-1-hd", input:text, voice:voiceId, speed:S.voiceRate})
+  });
+  if(!r.ok) throw new Error("OAI TTS "+r.status);
+  const blob = await r.blob();
+  const url = URL.createObjectURL(blob);
+  return new Promise((res,rej)=>{
+    const a=new Audio(url);
+    a.onended=()=>{URL.revokeObjectURL(url);res();};
+    a.onerror=rej; a.play();
+  });
+}
+
+async function speak(text, lang, speakerName){
+  const isAleksandra = (speakerName||"").toLowerCase().includes("aleksandra") || !speakerName;
+  try{
+    if(S.ttsEngine==="oai" && S.oaiKey){
+      const voice = isAleksandra ? S.oaiVoiceFemale : S.oaiVoiceMale;
+      await oaiSpeak(text, voice);
+    } else if(S.ttsEngine==="el" && S.elKey){
+      const vid = getVoiceId(lang, speakerName||"");
+      await elSpeak(text, lang, vid);
+    } else {
+      await browserSpeak(text, lang);
+    }
+  } catch(e){
+    console.log("TTS err, fallback:", e.message);
+    await browserSpeak(text, lang);
+  }
 }
 
 async function playDialog(dialog,lang){
@@ -386,9 +881,12 @@ async function playDialog(dialog,lang){
   for(let i=0;i<dialog.length;i++){
     if(flag.v)break;
     set({playingLine:i});
-    await speak(dialog[i].l,lang);
+    await speak(dialog[i].l, lang, dialog[i].s);
     if(flag.v)break;
-    await new Promise(r=>setTimeout(r,400));
+    // longer pause between different speakers, shorter for same speaker
+    const nextSpeaker = dialog[i+1]?.s;
+    const pause = nextSpeaker && nextSpeaker !== dialog[i].s ? 700 : 350;
+    await new Promise(r=>setTimeout(r,pause));
   }
   set({playing:false,playingLine:-1});
 }
@@ -456,6 +954,137 @@ function fileToB64(file){
   });
 }
 
+// ── AUDIO PLAYBACK ───────────────────────────────────────────────────────────
+function saveLessonAudio(lessonId, slot, dataUrl){
+  const la = Object.assign({}, S.lessonAudio);
+  if(!la[lessonId]) la[lessonId]={};
+  la[lessonId][slot] = dataUrl;
+  localStorage.setItem("lingua_audio", JSON.stringify(la));
+  set({lessonAudio:la});
+}
+
+function deleteLessonAudio(lessonId, slot){
+  const la = Object.assign({}, S.lessonAudio);
+  if(la[lessonId]) delete la[lessonId][slot];
+  localStorage.setItem("lingua_audio", JSON.stringify(la));
+  set({lessonAudio:la});
+}
+
+function fileToDataUrl(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function stopAudio(){
+  if(S.audioObj){S.audioObj.pause();S.audioObj=null;}
+  set({audioPlaying:false});
+}
+
+function playAudio(dataUrl){
+  stopAudio();
+  const audio=new Audio(dataUrl);
+  audio.onended=()=>set({audioPlaying:false,audioObj:null});
+  audio.onerror=()=>set({audioPlaying:false,audioObj:null});
+  audio.play();
+  set({audioPlaying:true,audioObj:audio});
+}
+
+// Play dialog with role-based audio
+async function playDialogWithAudio(dialog, lang, lessonId){
+  const la = S.lessonAudio[lessonId];
+  if(!la) return;
+
+  // If full recording — just play it
+  if(la.full){
+    playAudio(la.full);
+    return;
+  }
+
+  // If role recordings — play line by line
+  if(la.female || la.male){
+    // Can't split MP3 by timestamp without markers, so play full role files
+    // Play female file for Aleksandra lines, male for others
+    // Best UX: play female then male alternating based on first speaker
+    const firstIsFemale = dialog[0]?.s === "Aleksandra";
+    if(firstIsFemale && la.female) playAudio(la.female);
+    else if(la.male) playAudio(la.male);
+    return;
+  }
+}
+
+async function processFilm(){
+  set({filmProcessing:true, filmError:""});
+  const lang = S.filmLang;
+  const langNames = {EN:"angielskim",FR:"francuskim",IT:"włoskim"};
+  const langName = langNames[lang];
+  const file = S.filmFile;
+  const isVideo = file.type.startsWith("video/");
+  const PROMPT = `Jesteś ekspertem od nauki języków. Przeanalizuj ten fragment ${isVideo?"wideo":"audio"} w języku ${langName} i stwórz z niego kompletną lekcję językową.
+Transkrybuj DOKŁADNIE wszystkie wypowiedzi które słyszysz. Zidentyfikuj mówców (użyj imion jeśli je znasz, lub Osoba1/Osoba2).
+Odpowiedz TYLKO czystym JSON (bez markdown, bez komentarzy):
+{"title":"tytuł sceny np. Friends S01E01 - scena w kawiarni","level":"A2","topic":"temat lekcji po polsku","dialog":[{"s":"imię/nazwa postaci","l":"dokładny tekst w języku obcym","t":"naturalne tłumaczenie po polsku"}],"vocab":[{"w":"ważny zwrot z sceny","tr":"tłumaczenie","ipa":"wymowa IPA","pl":"wymowa dla Polaków","ex":"zdanie z fragmentu","exT":"tłumaczenie"}],"fill":[{"s":"zdanie z ___ luką","a":"brakujące słowo","h":"wskazówka po polsku"}],"grammar":[{"rule":"zasada gramatyczna widoczna w scenie","ex":"przykład z fragmentu","exT":"tłumaczenie","note":"wyjaśnienie po polsku"}]}`;
+
+  try{
+    // Convert file to base64
+    const b64 = (await fileToDataUrl(file)).split(",")[1];
+    const mediaType = file.type || (isVideo ? "video/mp4" : "audio/mpeg");
+
+    let content;
+    if(isVideo){
+      // For video: send as document (Claude can process video frames)
+      content = [
+        {type:"document", source:{type:"base64", media_type:"video/mp4", data:b64}},
+        {type:"text", text:PROMPT}
+      ];
+    } else {
+      // For audio
+      content = [
+        {type:"document", source:{type:"base64", media_type:mediaType, data:b64}},
+        {type:"text", text:PROMPT}
+      ];
+    }
+
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-opus-4-5-20251101",max_tokens:3000,messages:[{role:"user",content}]})
+    });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error((err.error?.message)||"API "+res.status);
+    }
+    const data = await res.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g,"").trim();
+    const json = JSON.parse(clean);
+    const lessonId = "film_"+Date.now();
+    json.id = lessonId;
+    json.type = "dialog";
+    json.fromFilm = true;
+    json.hasVideo = isVideo;
+
+    // Save video to IndexedDB if it's a video file
+    if(isVideo){
+      const videoKey = "video_"+lessonId;
+      await saveVideo(videoKey, file);
+      const lv = Object.assign({}, S.lessonVideos);
+      lv[lessonId] = videoKey;
+      localStorage.setItem("lingua_lesson_videos", JSON.stringify(lv));
+      set({lessonVideos:lv});
+    }
+
+    saveMyLesson(lang, json);
+    set({filmProcessing:false, filmFile:null, filmUploadStep:3});
+  } catch(e){
+    console.error("processFilm error:", e);
+    set({filmProcessing:false, filmError:"Błąd: "+e.message});
+  }
+}
+
 function startPractice(lesson,mode){
   const cards=mode==="flashcard"?lesson.vocab:lesson.fill;
   set({screen:"practice",lesson,mode,cards,idx:0,revealed:false,
@@ -506,298 +1135,243 @@ function h(tag,props,...ch){
 
 // ── SCREENS ──────────────────────────────────────────────────────────────────
 
+function renderTopNav(){
+  const{elKey,oaiKey,ttsEngine}=S;
+  const active = (ttsEngine==="oai"&&oaiKey)||(ttsEngine==="el"&&elKey);
+  return h("div",{class:"topnav"},
+    h("div",{class:"logo"},"Lingua",h("em",{},"Agent")),
+    h("div",{class:"nav-right"},
+      h("button",{class:"hbtn"+(active?" on":""),onclick:()=>set({screen:"settings",elKeyInput:S.elKey,elMsg:""}),
+        style:"letter-spacing:.06em;text-transform:uppercase;font-size:10px"},
+        active?"● Lektor aktywny":"○ Lektor")
+    )
+  );
+}
 function renderHome(){
   const w=h("div",{});
-  // Header
-  w.appendChild(h("div",{class:"header"},
-    h("span",{class:"logo"},"🌍 Lingua","Agent"),
-    h("div",{style:"display:flex;gap:8px"},
-      h("button",{class:"hbtn"+(S.elKey?" on":""),onclick:()=>set({screen:"settings",elKeyInput:S.elKey,elMsg:""})},
-        S.elKey?"🎙️ ElevenLabs ✓":"🎙️ Lektor"),
-      h("span",{class:"hbtn",style:"cursor:default"},"🔥 4 dni")
-    )
-  ));
-  // Lang tabs
-  const tabs=h("div",{class:"lang-tabs"});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  main.appendChild(h("div",{class:"page-title"},"Witaj w LinguaAgent"));
+  main.appendChild(h("div",{class:"page-sub"},"Wybierz język aby rozpocząć naukę"));
+  const grid=h("div",{style:"display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:560px"});
   for(const[code,l]of Object.entries(LANGS)){
-    tabs.appendChild(h("button",{class:"lang-tab"+(S.lang===code?" sel":""),
+    const btn=h("button",{
+      style:"padding:28px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .15s;font-family:inherit",
       onclick:()=>set({screen:"lang",lang:code})},
-      h("span",{class:"lang-flag"},l.flag),
-      h("span",{class:"lang-name"},l.name)
-    ));
+      h("div",{style:"font-size:28px;margin-bottom:10px"},l.flag),
+      h("div",{style:"font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px"},l.name),
+      h("div",{style:"font-size:11px;color:var(--text3)"},(COURSE[code]||[]).length+" lekcji")
+    );
+    btn.onmouseover=()=>{btn.style.borderColor="var(--border2)";btn.style.background="var(--accent-bg)";};
+    btn.onmouseout=()=>{btn.style.borderColor="var(--border)";btn.style.background="var(--surface)";};
+    grid.appendChild(btn);
   }
-  w.appendChild(tabs);
-  // Hint
-  w.appendChild(h("div",{class:"card",style:"text-align:center;color:#aaa;font-size:13px;padding:24px"},
-    "Wybierz język aby zobaczyć lekcje →"
-  ));
+  main.appendChild(grid);
+  w.appendChild(main);
   return w;
 }
 
 function renderLang(){
   const{lang}=S;
   const lessons=COURSE[lang]||[];
+  const myL=(S.myLessons[lang]||[]);
   const w=h("div",{});
+  w.appendChild(renderTopNav());
 
-  // Header
-  w.appendChild(h("div",{class:"header"},
-    h("button",{class:"back-btn",style:"margin:0",onclick:()=>set({screen:"home"})},"← Powrót"),
-    h("span",{style:"font-weight:700;font-size:15px"},LANGS[lang].flag+" "+LANGS[lang].name),
-    h("button",{class:"hbtn"+(S.elKey?" on":""),onclick:()=>set({screen:"settings",elKeyInput:S.elKey,elMsg:""})},
-      S.elKey?"🎙️ ✓":"🎙️")
-  ));
-
-  // Lang tabs (sticky navigation)
-  const tabs=h("div",{class:"lang-tabs"});
+  // Lang tabs
+  const langBar=h("div",{class:"lang-hero"});
   for(const[code,l]of Object.entries(LANGS)){
-    tabs.appendChild(h("button",{class:"lang-tab"+(lang===code?" sel":""),
-      onclick:()=>set({lang:code})},
+    langBar.appendChild(h("button",{class:"lang-tab"+(lang===code?" sel":""),
+      onclick:()=>set({lang:code,showUpload:false})},
       h("span",{class:"lang-flag"},l.flag),
       h("span",{class:"lang-name"},l.name)
     ));
   }
-  w.appendChild(tabs);
+  w.appendChild(langBar);
 
-  // Lessons
-  for(const lesson of lessons){
-    const card=h("div",{class:"card"});
-    card.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:space-between;margin-bottom:2px"},
-      h("div",{class:"card-title"},lesson.title),
-      h("span",{style:"font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#f0f0ec;color:#888;border:1px solid #e8e8e4"},lesson.level)
-    ));
-    card.appendChild(h("div",{class:"card-meta"},lesson.topic));
+  const main=h("div",{class:"main"});
+  main.appendChild(h("div",{class:"page-title"},LANGS[lang].name));
+  main.appendChild(h("div",{class:"page-sub"},lessons.length+" lekcji wbudowanych · "+myL.length+" moich"));
 
-    const grid=h("div",{class:"action-grid"});
+  // Built-in lessons grid
+  const grid=h("div",{class:"lesson-grid"});
+  lessons.forEach((lesson,i)=>{
+    const cell=h("div",{class:"lesson-cell"});
+    cell.appendChild(h("div",{class:"lesson-num"},"Lekcja "+(i+1)+" · "+lesson.level));
+    cell.appendChild(h("div",{class:"lesson-title"},lesson.title));
+    cell.appendChild(h("div",{class:"lesson-topic"},lesson.topic));
+    const strip=h("div",{class:"action-strip"});
+    [{id:"dialog",icon:"💬",label:"Dialog",desc:"słuchaj"},{id:"flashcard",icon:"🃏",label:"Fiszki",desc:lesson.vocab.length+" słówek"},
+     {id:"fill",icon:"✏️",label:"Ćwiczenia",desc:lesson.fill.length+" zadań"},{id:"grammar",icon:"📐",label:"Gramatyka",desc:lesson.grammar.length+" zasad"}
+    ].forEach(({id,icon,label,desc})=>{
+      strip.appendChild(h("button",{class:"action-btn",onclick:()=>{
+        if(id==="flashcard"||id==="fill") startPractice(lesson,id);
+        else set({screen:"lesson",lesson,mode:id,playing:false,playingLine:-1});
+      }},
+        h("div",{class:"aicon"},icon),
+        h("div",{class:"alabel"},label),
+        h("div",{class:"adesc"},desc)
+      ));
+    });
+    cell.appendChild(strip);
+    grid.appendChild(cell);
+  });
+  main.appendChild(grid);
 
-    // Dialog / Tekst button
-    grid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},
-      h("div",{class:"aicon"},"💬"),
-      h("div",{class:"alabel"},"Dialog"),
-      h("div",{class:"adesc"},"Czytaj i słuchaj")
-    ));
-    // Fiszki
-    grid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"flashcard")},
-      h("div",{class:"aicon"},"🃏"),
-      h("div",{class:"alabel"},"Fiszki"),
-      h("div",{class:"adesc"},lesson.vocab.length+" słówek")
-    ));
-    // Uzupełnianie
-    grid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"fill")},
-      h("div",{class:"aicon"},"✏️"),
-      h("div",{class:"alabel"},"Uzupełnianie"),
-      h("div",{class:"adesc"},lesson.fill.length+" ćwiczeń")
-    ));
-    // Gramatyka
-    grid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"grammar"})},
-      h("div",{class:"aicon"},"📐"),
-      h("div",{class:"alabel"},"Gramatyka"),
-      h("div",{class:"adesc"},lesson.grammar.length+" zasad")
-    ));
+  // My lessons
+  const myHead=h("div",{class:"section-head"});
+  myHead.appendChild(h("div",{class:"section-title"},"Moje lekcje"));
+  const myBtns=h("div",{style:"display:flex;gap:8px"});
+  myBtns.appendChild(h("button",{class:"add-btn",
+    style:"background:var(--text);color:#fff;border-color:var(--text)",
+    onclick:()=>set({screen:"filmoteka",filmLang:lang,filmUploadStep:0,filmFile:null,filmError:""})},"🎬 Filmoteka"));
+  myBtns.appendChild(h("button",{class:"add-btn",
+    onclick:()=>set({showUpload:true,uploadLang:lang,uploadStep:0,uploadFile:null,uploadPreview:null,uploadError:"",uploadProcessing:false})},"+ Wgraj tekst"));
+  myHead.appendChild(myBtns);
+  main.appendChild(myHead);
 
-    card.appendChild(grid);
-    w.appendChild(card);
-  }
-  // ── MOJE LEKCJE ──────────────────────────────────────────────────────────
-  const myL = (S.myLessons[lang]||[]);
-  const mySection = h("div",{class:"card"});
-  mySection.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"},
-    h("div",{class:"sec-label",style:"margin:0"},"Moje lekcje ("+myL.length+")"),
-    h("button",{class:"play-btn",onclick:()=>set({showUpload:true,uploadLang:lang,uploadStep:0,uploadFile:null,uploadPreview:null,uploadError:"",uploadProcessing:false})},"+ Wgraj lekcję")
-  ));
-
-  if(myL.length===0){
-    mySection.appendChild(h("div",{style:"text-align:center;padding:20px 0;color:#ccc;font-size:13px"},
-      h("div",{style:"font-size:32px;margin-bottom:8px"},"📂"),
-      h("div",{},"Brak własnych lekcji"),
-      h("div",{style:"font-size:12px;margin-top:4px"},"Wgraj skan, PDF lub wklej tekst z podręcznika")
+  if(myL.length===0 && !S.showUpload){
+    main.appendChild(h("div",{class:"empty"},
+      h("div",{class:"empty-icon"},"📂"),
+      h("div",{class:"empty-text"},"Brak własnych lekcji"),
+      h("div",{class:"empty-sub"},"Wgraj skan, PDF lub wklej tekst z podręcznika")
     ));
   }
+  myL.forEach((lesson,i)=>{
+    const row=h("div",{class:"my-lesson-row"});
+    const info=h("div",{class:"my-lesson-info"});
+    info.appendChild(h("div",{class:"my-lesson-title"},lesson.title||"Bez tytułu"));
+    info.appendChild(h("div",{class:"my-lesson-meta"},(lesson.level||"")+" · "+(lesson.vocab||[]).length+" słówek · "+(lesson.dialog||[]).length+" linii"));
+    row.appendChild(info);
+    const acts=h("div",{class:"my-lesson-actions"});
+    acts.appendChild(h("button",{class:"sbtn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},"Otwórz"));
+    acts.appendChild(h("button",{class:"sbtn",style:"border-color:#fca5a5;color:#dc2626",onclick:()=>{if(confirm("Usunąć?"))deleteMyLesson(lang,i);}},"✕"));
+    row.appendChild(acts);
+    main.appendChild(row);
+  });
 
-  for(let i=0;i<myL.length;i++){
-    const lesson=myL[i];
-    const lcard=h("div",{style:"border:1px solid #e8e8e4;border-radius:10px;padding:14px;margin-bottom:8px"});
-    lcard.appendChild(h("div",{style:"display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"},
-      h("div",{},
-        h("div",{style:"font-size:14px;font-weight:600"},lesson.title||"Bez tytułu"),
-        h("div",{style:"font-size:12px;color:#aaa;margin-top:1px"},(lesson.topic||"")+" · "+((lesson.vocab||[]).length)+" słówek")
-      ),
-      h("button",{style:"background:none;border:none;color:#ddd;cursor:pointer;font-size:16px",
-        onclick:()=>{if(confirm("Usunąć tę lekcję?"))deleteMyLesson(lang,i);}
-      },"✕")
-    ));
-    const lgrid=h("div",{class:"action-grid"});
-    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},
-      h("div",{class:"aicon"},"💬"),h("div",{class:"alabel"},"Dialog"),h("div",{class:"adesc"},"Czytaj i słuchaj")));
-    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"flashcard")},
-      h("div",{class:"aicon"},"🃏"),h("div",{class:"alabel"},"Fiszki"),h("div",{class:"adesc"},(lesson.vocab||[]).length+" słówek")));
-    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>startPractice(lesson,"fill")},
-      h("div",{class:"aicon"},"✏️"),h("div",{class:"alabel"},"Uzupełnianie"),h("div",{class:"adesc"},(lesson.fill||[]).length+" ćwiczeń")));
-    lgrid.appendChild(h("button",{class:"action-btn",onclick:()=>set({screen:"lesson",lesson,mode:"grammar"})},
-      h("div",{class:"aicon"},"📐"),h("div",{class:"alabel"},"Gramatyka"),h("div",{class:"adesc"},(lesson.grammar||[]).length+" zasad")));
-    lcard.appendChild(lgrid);
-    mySection.appendChild(lcard);
-  }
-  w.appendChild(mySection);
+  if(S.showUpload && S.uploadLang===lang) main.appendChild(renderUploadPanel());
 
-  // Upload modal (inline, no fixed position)
-  if(S.showUpload && S.uploadLang===lang){
-    w.appendChild(renderUploadPanel());
-  }
-
+  w.appendChild(main);
   return w;
-}
-
-function renderUploadPanel(){
-  const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,anthKey}=S;
-  const panel=h("div",{style:"background:#fff;border:2px solid #2563eb;border-radius:14px;padding:20px;margin-bottom:12px"});
-
-  panel.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"},
-    h("div",{style:"font-size:15px;font-weight:700"},"📥 Wgraj własną lekcję — "+LANGS[uploadLang].flag),
-    h("button",{style:"background:none;border:none;font-size:20px;cursor:pointer;color:#aaa",onclick:()=>set({showUpload:false})},"✕")
-  ));
-
-  if(!anthKey){
-    panel.appendChild(h("div",{style:"background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:#92400e"},
-      "⚠️ Potrzebujesz klucza Anthropic API aby rozpoznawać treść z obrazów i PDF-ów.",
-      h("br",{}),h("br",{}),
-      "Wejdź w ",h("strong",{},"🎙️ Lektor")," → zakładka Anthropic API → wklej klucz."
-    ));
-  }
-
-  if(uploadStep===0){
-    // Step 1: choose input method
-    panel.appendChild(h("div",{class:"sec-label"},"Wybierz źródło materiału"));
-    const grid=h("div",{style:"display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"});
-
-    // Image upload
-    const imgLabel=h("label",{style:"display:block;padding:16px;border-radius:12px;border:1px solid #e8e8e4;background:#fafafa;cursor:pointer;text-align:center"});
-    imgLabel.appendChild(h("div",{style:"font-size:26px;margin-bottom:4px"},"📸"));
-    imgLabel.appendChild(h("div",{style:"font-size:13px;font-weight:600;color:#444"},"Zdjęcie / Skan"));
-    imgLabel.appendChild(h("div",{style:"font-size:11px;color:#aaa;margin-top:2px"},"JPG, PNG"));
-    const imgInp=h("input",{type:"file",accept:"image/*",style:"display:none",
-      onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
-    imgLabel.appendChild(imgInp);
-    grid.appendChild(imgLabel);
-
-    // PDF upload
-    const pdfLabel=h("label",{style:"display:block;padding:16px;border-radius:12px;border:1px solid #e8e8e4;background:#fafafa;cursor:pointer;text-align:center"});
-    pdfLabel.appendChild(h("div",{style:"font-size:26px;margin-bottom:4px"},"📄"));
-    pdfLabel.appendChild(h("div",{style:"font-size:13px;font-weight:600;color:#444"},"Plik PDF"));
-    pdfLabel.appendChild(h("div",{style:"font-size:11px;color:#aaa;margin-top:2px"},"PDF"));
-    const pdfInp=h("input",{type:"file",accept:".pdf",style:"display:none",
-      onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
-    pdfLabel.appendChild(pdfInp);
-    grid.appendChild(pdfLabel);
-
-    panel.appendChild(grid);
-
-    // Text paste
-    panel.appendChild(h("div",{class:"sec-label"},"lub wklej tekst"));
-    const ta=h("textarea",{style:"width:100%;min-height:120px;padding:12px;border-radius:10px;border:1.5px solid #e8e8e4;background:#fafafa;font-size:13px;font-family:inherit;outline:none;resize:vertical",
-      placeholder:"Wklej tekst z podręcznika, dialog, słówka...",
-      oninput:(e)=>set({uploadPreview:e.target.value})});
-    panel.appendChild(ta);
-    if(S.uploadPreview && typeof S.uploadPreview==="string" && S.uploadPreview.length>10){
-      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:10px",onclick:()=>{set({uploadStep:1});processUpload();}},"🔍 Analizuj tekst"));
-    }
-  }
-
-  if(uploadStep===1 && uploadFile){
-    panel.appendChild(h("div",{style:"background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:#166534"},
-      "✓ Wgrany: "+uploadFile.name+" ("+Math.round(uploadFile.size/1024)+" KB)"));
-    if(!uploadProcessing){
-      if(!anthKey){
-        panel.appendChild(h("div",{style:"font-size:13px;color:#dc2626;margin-bottom:10px"},"Brak klucza Anthropic API — nie można przetworzyć pliku."));
-      } else {
-        panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"🔍 Analizuj z AI"));
-      }
-    } else {
-      panel.appendChild(h("div",{style:"text-align:center;padding:20px;color:#2563eb;font-size:14px"},
-        "⏳ Claude analizuje materiał... (kilka sekund)"));
-    }
-  }
-
-  if(uploadError){
-    panel.appendChild(h("div",{style:"background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:#dc2626"},uploadError));
-  }
-
-  if(uploadStep===2 && uploadPreview && typeof uploadPreview==="object"){
-    const prev=uploadPreview;
-    panel.appendChild(h("div",{style:"background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px;margin-bottom:14px"},
-      h("div",{style:"font-size:13px;font-weight:600;color:#166534;margin-bottom:8px"},"✓ Wykryto lekcję:"),
-      h("div",{style:"font-size:14px;font-weight:700"},prev.title||"Bez tytułu"),
-      h("div",{style:"font-size:12px;color:#666;margin-top:2px"},
-        (prev.level||"")+" · "+(prev.dialog||[]).length+" linii dialogu · "+(prev.vocab||[]).length+" słówek · "+(prev.grammar||[]).length+" zasad gramatyki"),
-      h("div",{style:"font-size:13px;color:#444;margin-top:8px;font-style:italic"},
-        (prev.dialog||[]).slice(0,2).map(d=>d.s+": "+d.l).join(" / "))
-    ));
-    const br=h("div",{style:"display:flex;gap:8px"});
-    br.appendChild(h("button",{class:"check-btn",style:"flex:2",onclick:()=>saveMyLesson(uploadLang,prev)},"✓ Zapisz lekcję"));
-    br.appendChild(h("button",{class:"next-btn",style:"margin:0;flex:1",onclick:()=>set({uploadStep:0,uploadFile:null,uploadPreview:null})},"← Wróć"));
-    panel.appendChild(br);
-  }
-
-  return panel;
 }
 
 function renderLesson(){
   const{lesson,lang,mode,playing,playingLine}=S;
   const w=h("div",{});
-  w.appendChild(h("div",{class:"header"},
-    h("button",{class:"back-btn",style:"margin:0",onclick:()=>{stopDialog();set({screen:"lang"})}},"← "+LANGS[lang].name),
-    h("span",{style:"font-weight:700;font-size:14px"},lesson.title),
-    h("span",{style:"font-size:11px;padding:2px 8px;border-radius:6px;background:#f0f0ec;color:#888;border:1px solid #e8e8e4"},lesson.level)
+  w.appendChild(renderTopNav());
+  w.appendChild(h("div",{class:"lang-hero"},
+    ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
+      onclick:()=>set({lang:code,screen:"lang"})},
+      h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
+  ));
+  const main=h("div",{class:"main"});
+  h("button",{class:"back-btn",onclick:()=>{stopDialog();set({screen:"lang"})}},"← "+LANGS[lang].name+" / "+lesson.title);
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>{stopDialog();set({screen:"lang"})}},
+    "← ",h("span",{style:"letter-spacing:.06em;text-transform:uppercase;font-size:10px"},LANGS[lang].name)
   ));
 
+  main.appendChild(h("div",{class:"lesson-header"},
+    h("div",{class:"page-title"},lesson.title),
+    h("div",{class:"page-sub"},lesson.topic+" · "+lesson.level)
+  ));
+
+  // Video player if lesson has video
+  if(lesson.hasVideo && S.lessonVideos[lesson.id]){
+    const videoWrap=h("div",{style:"max-width:680px;margin-bottom:32px"});
+    const video=h("video",{controls:"true",style:"width:100%;border-radius:10px;background:#000;max-height:380px"});
+    video.style.display="none";
+    // Load from IndexedDB
+    loadVideo(S.lessonVideos[lesson.id]).then(blob=>{
+      if(blob){
+        const url=URL.createObjectURL(blob);
+        video.src=url;
+        video.style.display="block";
+      }
+    });
+    videoWrap.appendChild(video);
+    // Shadowing mode toggle
+    const shadowBtn=h("button",{
+      style:"margin-top:8px;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
+      onclick:()=>{
+        // pause video after each subtitle line
+        const lines=main.querySelectorAll(".dline-orig");
+        alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶");
+      }
+    },"🎭 Tryb shadowing — jak używać?");
+    videoWrap.appendChild(shadowBtn);
+    main.appendChild(videoWrap);
+  }
+
   if(mode==="dialog"){
-    const dc=h("div",{class:"card"});
-    const dh=h("div",{class:"dialog-header"});
-    dh.appendChild(h("div",{class:"sec-label",style:"margin:0"},"Dialog"));
-    dh.appendChild(playing
-      ? h("button",{class:"stop-btn",onclick:stopDialog},"⏹ Stop")
-      : h("button",{class:"play-btn",onclick:()=>playDialog(lesson.dialog,lang)},"▶ Odtwórz cały")
-    );
-    dc.appendChild(dh);
+    const dw=h("div",{class:"dialog-wrap"});
+    const lessonAudio = S.lessonAudio[lesson.id]||{};
+    const hasAudio = lessonAudio.full || lessonAudio.female || lessonAudio.male;
+    const dc=h("div",{class:"dialog-controls"});
+    dc.appendChild(h("div",{class:"dialog-label"},"Dialog"));
+    const btnGroup=h("div",{style:"display:flex;gap:8px;align-items:center"});
+    // Audio management button
+    btnGroup.appendChild(h("button",{
+      style:"padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:"+(hasAudio?"var(--text)":"var(--surface)")+";color:"+(hasAudio?"#fff":"var(--text2)")+";cursor:pointer;font-size:11px;font-family:inherit;letter-spacing:.04em",
+      onclick:()=>set({screen:"audiomgr",lesson,audioMgrLesson:lesson})
+    },hasAudio?"🎵 Nagrania":"+ Wgraj nagranie"));
+    // Play button
+    if(S.audioPlaying){
+      btnGroup.appendChild(h("button",{class:"stop-btn",onclick:stopAudio},"⏹ Stop"));
+    } else if(hasAudio){
+      btnGroup.appendChild(h("button",{class:"play-btn",onclick:()=>playDialogWithAudio(lesson.dialog,lang,lesson.id)},"▶ Odtwórz nagranie"));
+      btnGroup.appendChild(h("button",{class:"play-btn",style:"background:var(--surface);color:var(--text2);border:1px solid var(--border)",onclick:()=>playDialog(lesson.dialog,lang)},"▶ Syntetyczny"));
+    } else {
+      btnGroup.appendChild(playing
+        ? h("button",{class:"stop-btn",onclick:stopDialog},"⏹ Stop")
+        : h("button",{class:"play-btn",onclick:()=>playDialog(lesson.dialog,lang)},"▶ Odtwórz")
+      );
+    }
+    dc.appendChild(btnGroup);
+    dw.appendChild(dc);
     lesson.dialog.forEach((line,i)=>{
       const row=h("div",{class:"dline"+(playingLine===i?" active":"")});
-      const top=h("div",{class:"spk"+(line.s==="Aleksandra"?" me":"")},line.s.toUpperCase());
-      top.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang);}},playingLine===i?"▶":"🔊"));
-      row.appendChild(top);
-      row.appendChild(h("div",{style:"font-size:15px;margin-bottom:3px"},line.l));
-      row.appendChild(h("div",{style:"font-size:12px;color:#bbb;font-style:italic"},line.t));
-      dc.appendChild(row);
+      const spkDiv=h("div",{class:"spk"+(line.s==="Aleksandra"?" me":"")},line.s.toUpperCase());
+      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===i?"▶":"♪"));
+      row.appendChild(spkDiv);
+      const txt=h("div",{class:"dline-text"});
+      txt.appendChild(h("div",{class:"dline-orig"},line.l));
+      txt.appendChild(h("div",{class:"dline-tr"},line.t));
+      row.appendChild(txt);
+      dw.appendChild(row);
     });
-    w.appendChild(dc);
+    main.appendChild(dw);
 
-    // Vocab list below dialog
-    const vc=h("div",{class:"card"});
-    vc.appendChild(h("div",{class:"sec-label"},"Słowniczek ("+lesson.vocab.length+" zwrotów)"));
+    const vw=h("div",{class:"vocab-wrap"});
+    vw.appendChild(h("div",{class:"sec-label"},"Słownictwo"));
     lesson.vocab.forEach(v=>{
       const row=h("div",{class:"vrow"});
-      row.appendChild(h("button",{class:"spk-btn",style:"font-size:17px;opacity:.5",onclick:()=>speak(v.w,lang)},"🔊"));
-      const info=h("div",{style:"flex:1"});
-      info.appendChild(h("div",{style:"font-size:14px;font-weight:600"},v.w));
-      info.appendChild(h("div",{style:"font-size:13px;color:#2563eb;margin-top:1px"},v.tr));
-      info.appendChild(h("div",{style:"font-size:12px;color:#bbb;font-family:monospace;margin-top:1px"},v.ipa+" · "+v.pl));
-      row.appendChild(info);
-      vc.appendChild(row);
+      row.appendChild(h("button",{class:"spk-btn",onclick:()=>speak(v.w,lang,"")},"♪"));
+      const wDiv=h("div",{});
+      wDiv.appendChild(h("div",{class:"v-word"},v.w));
+      if(v.ipa) wDiv.appendChild(h("div",{class:"v-meta"},v.ipa+" · "+v.pl));
+      row.appendChild(wDiv);
+      row.appendChild(h("div",{class:"v-tr"},v.tr));
+      vw.appendChild(row);
     });
-    w.appendChild(vc);
+    main.appendChild(vw);
   }
 
   if(mode==="grammar"){
-    const gc=h("div",{class:"card"});
-    gc.appendChild(h("div",{class:"sec-label"},"Gramatyka lekcji"));
+    const gw=h("div",{class:"grammar-wrap"});
+    gw.appendChild(h("div",{class:"sec-label",style:"margin-bottom:20px"},"Gramatyka lekcji"));
     lesson.grammar.forEach(g=>{
-      const block=h("div",{class:"grammar-block"});
-      block.appendChild(h("div",{class:"grammar-rule"},g.rule));
-      block.appendChild(h("div",{class:"grammar-ex"},g.ex));
-      block.appendChild(h("div",{class:"grammar-extr"},g.exT));
-      if(g.note)block.appendChild(h("div",{style:"font-size:12px;color:#888;margin-top:6px;font-style:normal"},g.note));
-      gc.appendChild(block);
+      const blk=h("div",{class:"grammar-block"});
+      blk.appendChild(h("div",{class:"grammar-rule"},g.rule));
+      blk.appendChild(h("div",{class:"grammar-ex"},g.ex));
+      blk.appendChild(h("div",{class:"grammar-extr"},g.exT));
+      if(g.note) blk.appendChild(h("div",{class:"grammar-note"},g.note));
+      gw.appendChild(blk);
     });
-    w.appendChild(gc);
+    main.appendChild(gw);
   }
+
+  w.appendChild(main);
   return w;
 }
 
@@ -805,80 +1379,101 @@ function renderPractice(){
   const{lesson,lang,mode,cards,idx,revealed,dir,score,input,submitted}=S;
   const card=cards[idx];
   const w=h("div",{});
-  w.appendChild(h("div",{class:"header"},
-    h("button",{class:"back-btn",style:"margin:0",onclick:()=>set({screen:"lang"})},"← "+LANGS[lang].name),
-    h("span",{style:"font-weight:700"},mode==="flashcard"?"🃏 Fiszki":"✏️ Uzupełnianie"),
-    h("span",{style:"font-size:12px;color:#aaa"},lesson.title)
-  ));
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
 
-  w.appendChild(h("div",{class:"prog-info"},
-    h("span",{},(idx+1)+" / "+cards.length),
-    h("span",{},"✓ "+score.c+" / "+score.t)
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← "+LANGS[lang].name));
+  main.appendChild(h("div",{class:"prog-info"},
+    h("span",{},(idx+1)+" / "+cards.length+" · "+(mode==="flashcard"?"Fiszki":"Uzupełnianie")),
+    h("span",{style:"color:var(--gold)"},"✓ "+score.c+" / "+score.t)
   ));
   const pb=h("div",{class:"prog-bar"});
   pb.appendChild(h("div",{class:"prog-fill",style:"width:"+Math.round(idx/cards.length*100)+"%"}));
-  w.appendChild(pb);
+  main.appendChild(pb);
 
   if(mode==="flashcard"){
+    const fw=h("div",{class:"fc-wrap"});
     const dr=h("div",{class:"dir-row"});
-    [["to_pl",LANGS[lang].flag+"→🇵🇱"],["to_lang","🇵🇱→"+LANGS[lang].flag],["mix","🔀 mix"]].forEach(([d,label])=>{
+    [["to_pl",LANGS[lang].flag+" → 🇵🇱"],["to_lang","🇵🇱 → "+LANGS[lang].flag],["mix","🔀 Mix"]].forEach(([d,label])=>{
       dr.appendChild(h("button",{class:"dir-btn"+(dir===d?" sel":""),
         onclick:()=>set({dir:d==="mix"?(Math.random()>.5?"to_pl":"to_lang"):d,revealed:false})},label));
     });
-    w.appendChild(dr);
+    fw.appendChild(dr);
 
     const topl=dir==="to_pl";
     const fc=h("div",{class:"fc"+(revealed?" open":""),onclick:()=>{if(!revealed)set({revealed:true});}});
     fc.appendChild(h("div",{class:"fc-lang"},topl?(LANGS[lang].name+" → Polski"):("Polski → "+LANGS[lang].name)));
-
     if(topl){
       fc.appendChild(h("div",{class:"fc-word"},card.w));
-      fc.appendChild(h("button",{class:"spk-btn",style:"font-size:19px;opacity:.5;margin:4px 0",onclick:(e)=>{e.stopPropagation();speak(card.w,lang);}},"🔊"));
-      if(!revealed)fc.appendChild(h("div",{class:"hint"},"Dotknij aby ujawnić →"));
+      fc.appendChild(h("button",{class:"spk-btn",style:"font-size:18px;margin:6px 0;opacity:.4",onclick:(e)=>{e.stopPropagation();speak(card.w,lang,"aleksandra");}},"♪"));
+      if(!revealed) fc.appendChild(h("div",{class:"hint"},"— dotknij aby ujawnić —"));
       else{
         fc.appendChild(h("div",{class:"fc-tr"},card.tr));
         fc.appendChild(h("div",{class:"fc-ipa"},card.ipa));
         fc.appendChild(h("div",{class:"fc-pl"},"czytaj: "+card.pl));
         if(card.ex){const ex=h("div",{class:"fc-ex"});ex.appendChild(h("div",{},card.ex));ex.appendChild(h("div",{class:"fc-ex-tr"},card.exT));fc.appendChild(ex);}
       }
-    }else{
-      fc.appendChild(h("div",{class:"fc-tr",style:"font-size:22px"},card.tr));
-      if(!revealed)fc.appendChild(h("div",{class:"hint"},"Dotknij aby ujawnić →"));
+    } else {
+      fc.appendChild(h("div",{class:"fc-tr",style:"font-size:32px;margin-bottom:4px"},card.tr));
+      if(!revealed) fc.appendChild(h("div",{class:"hint"},"— dotknij aby ujawnić —"));
       else{
         fc.appendChild(h("div",{class:"fc-word"},card.w));
-        fc.appendChild(h("button",{class:"spk-btn",style:"font-size:19px;opacity:.5;margin:4px 0",onclick:(e)=>{e.stopPropagation();speak(card.w,lang);}},"🔊"));
+        fc.appendChild(h("button",{class:"spk-btn",style:"font-size:18px;margin:6px 0;opacity:.4",onclick:(e)=>{e.stopPropagation();speak(card.w,lang,"aleksandra");}},"♪"));
         fc.appendChild(h("div",{class:"fc-ipa"},card.ipa));
         fc.appendChild(h("div",{class:"fc-pl"},"czytaj: "+card.pl));
         if(card.ex){const ex=h("div",{class:"fc-ex"});ex.appendChild(h("div",{},card.ex));ex.appendChild(h("div",{class:"fc-ex-tr"},card.exT));fc.appendChild(ex);}
       }
     }
-    w.appendChild(fc);
+    fw.appendChild(fc);
     if(revealed){
       const ar=h("div",{class:"ans-row"});
-      ar.appendChild(h("button",{class:"btn-no",onclick:()=>{set({score:{c:S.score.c,t:S.score.t+1}});nextCard();}},"✗ Nie wiedziałam"));
-      ar.appendChild(h("button",{class:"btn-yes",onclick:()=>{set({score:{c:S.score.c+1,t:S.score.t+1}});nextCard();}},"✓ Wiedziałam!"));
-      w.appendChild(ar);
+      ar.appendChild(h("button",{class:"btn-no",onclick:()=>{set({score:{c:S.score.c,t:S.score.t+1}});nextCard();}},"✗  Nie wiedziałam"));
+      ar.appendChild(h("button",{class:"btn-yes",onclick:()=>{set({score:{c:S.score.c+1,t:S.score.t+1}});nextCard();}},"✓  Wiedziałam"));
+      fw.appendChild(ar);
     }
+    main.appendChild(fw);
   }
 
   if(mode==="fill"){
-    const fc=h("div",{class:"fill-card"});
-    fc.appendChild(h("div",{style:"font-size:12px;color:#aaa;margin-bottom:8px"},"Wskazówka: "+card.h));
-    fc.appendChild(h("div",{class:"fill-sentence"},card.s));
+    const fw=h("div",{class:"fill-wrap"});
+    fw.appendChild(h("div",{class:"fill-hint"},"Wskazówka: "+card.h));
+    // Replace ___ with letter-count blanks
+const blankedSentence = card.s.replace(/___/g, ()=>{
+  const count = card.a.length;
+  return "_ ".repeat(count).trim().split(" ").join(" ");
+});
+// Render with styled blank
+const sentDiv = h("div",{class:"fill-sentence"});
+const parts = card.s.split("___");
+if(parts.length === 2){
+  sentDiv.appendChild(document.createTextNode(parts[0]));
+  const blank = h("span",{style:"display:inline-block;border-bottom:2px solid var(--gold);min-width:"+(card.a.length*14)+"px;margin:0 4px;color:var(--gold);letter-spacing:4px;font-family:monospace"},"_".repeat(card.a.length));
+  sentDiv.appendChild(blank);
+  sentDiv.appendChild(document.createTextNode(parts[1]));
+} else {
+  sentDiv.appendChild(document.createTextNode(card.s));
+}
+fw.appendChild(sentDiv);
     const ok=submitted&&input.trim().toLowerCase()===card.a.toLowerCase();
     const bad=submitted&&input.trim().toLowerCase()!==card.a.toLowerCase();
     const inp=h("input",{type:"text",class:"fill-inp"+(ok?" ok":bad?" bad":""),
-      placeholder:"Wpisz brakujące słowo...",value:input,
-      oninput:(e)=>set({input:e.target.value}),
-      onkeydown:(e)=>{if(e.key==="Enter"&&!submitted)set({submitted:true});}});
-    fc.appendChild(inp);
-    if(!submitted)fc.appendChild(h("button",{class:"check-btn",onclick:()=>set({submitted:true})},"Sprawdź ✓"));
+      placeholder:"wpisz brakujące słowo",
+      onchange:(e)=>{ S.input=e.target.value; },
+      onkeydown:(e)=>{
+        S.input=e.target.value;
+        if(e.key==="Enter"&&!submitted){set({input:e.target.value,submitted:true});}
+      }});
+    inp.value=input;
+    fw.appendChild(inp);
+    if(!submitted) fw.appendChild(h("button",{class:"check-btn",onclick:()=>{const v=main.querySelector('.fill-inp');set({input:v?v.value:S.input,submitted:true});}},"Sprawdź"));
     if(submitted){
-      fc.appendChild(h("div",{class:"feedback "+(ok?"ok":"bad")},ok?"✓ Brawo! Poprawnie!":"✗ Poprawna odpowiedź: "+card.a));
-      fc.appendChild(h("button",{class:"next-btn",onclick:()=>{set({score:{c:ok?S.score.c+1:S.score.c,t:S.score.t+1}});nextCard();}},"Następne →"));
+      fw.appendChild(h("div",{class:"feedback "+(ok?"ok":"bad")},ok?"✓ Poprawnie!":"✗ Poprawna odpowiedź: "+card.a));
+      fw.appendChild(h("button",{class:"next-btn",onclick:()=>{set({score:{c:ok?S.score.c+1:S.score.c,t:S.score.t+1}});nextCard();}},"Następne →"));
     }
-    w.appendChild(fc);
+    main.appendChild(fw);
   }
+
+  w.appendChild(main);
   return w;
 }
 
@@ -886,110 +1481,1021 @@ function renderResults(){
   const{score,lesson,mode,lang}=S;
   const pct=score.t>0?score.c/score.t:0;
   const w=h("div",{});
-  const c=h("div",{class:"result-card"});
-  c.appendChild(h("div",{style:"font-size:52px;margin-bottom:10px"},pct>=.8?"🏆":pct>=.5?"💪":"📚"));
-  c.appendChild(h("div",{style:"font-size:24px;font-weight:700;margin-bottom:6px"},"Sesja zakończona!"));
-  c.appendChild(h("div",{style:"font-size:15px;color:#888;margin-bottom:24px"},score.c+" / "+score.t+" poprawnych"));
-  const br=h("div",{style:"display:flex;gap:8px"});
-  br.appendChild(h("button",{class:"primary",onclick:()=>startPractice(lesson,mode)},"🔄 Jeszcze raz"));
-  br.appendChild(h("button",{class:"primary",style:"background:#fff;color:#2563eb;border:1.5px solid #93c5fd",onclick:()=>set({screen:"lesson",mode:"dialog",playing:false,playingLine:-1})},"💬 Dialog"));
-  br.appendChild(h("button",{class:"primary",style:"background:#fff;color:#666;border:1px solid #e8e8e4",onclick:()=>set({screen:"lang"})},"← Lekcje"));
-  c.appendChild(br);
-  w.appendChild(c);
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  const rw=h("div",{class:"result-wrap"});
+  rw.appendChild(h("div",{class:"result-emoji"},pct>=.8?"🏆":pct>=.5?"💪":"📚"));
+  rw.appendChild(h("div",{class:"result-title"},score.c+" / "+score.t));
+  rw.appendChild(h("div",{class:"result-sub"},pct>=.8?"Świetny wynik! Czas na kolejną lekcję.":"Powtórz jeszcze raz — repetition is key."));
+  const btns=h("div",{class:"result-btns"});
+  btns.appendChild(h("button",{class:"result-btn primary",onclick:()=>startPractice(lesson,mode)},"Jeszcze raz"));
+  btns.appendChild(h("button",{class:"result-btn",onclick:()=>set({screen:"lesson",mode:"dialog",playing:false,playingLine:-1})},"Dialog"));
+  btns.appendChild(h("button",{class:"result-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
+  rw.appendChild(btns);
+  main.appendChild(rw);
+  w.appendChild(main);
   return w;
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey}=S;
   const w=h("div",{});
-  w.appendChild(h("div",{class:"header"},
-    h("button",{class:"back-btn",style:"margin:0",onclick:()=>set({screen:S.lang?"lang":"home"})},"← Powrót"),
-    h("span",{style:"font-weight:700"},"🎙️ Ustawienia lektora"),
-    h("div",{style:"width:60px"})
-  ));
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:S.lang?"lang":"home"})},"← Powrót"));
+  const sw=h("div",{class:"settings-wrap"});
+  sw.appendChild(h("div",{class:"settings-title"},"Ustawienia lektora"));
+  sw.appendChild(h("div",{class:"settings-sub"},"Wybierz silnik głosowy i skonfiguruj klucze API."));
 
-  const panel=h("div",{class:"settings-panel"});
-  panel.appendChild(h("div",{class:"settings-title"},"ElevenLabs — naturalne głosy AI"));
-  panel.appendChild(h("div",{class:"settings-sub"},
-    "Darmowe konto na elevenlabs.io → Developers → API Keys → Create Key.\nKlucz widoczny tylko raz — skopiuj go od razu!"));
-
-  // Voice test rows
-  panel.appendChild(h("div",{class:"sec-label"},"Głosy lektorów"));
-  [["EN","Sarah","British English"],["FR","Charlotte","Français"],["IT","Jessica","Italiano"]].forEach(([lc,name,desc])=>{
-    const row=h("div",{class:"vtest-row"});
-    row.appendChild(h("div",{},
-      h("div",{style:"font-size:13px;font-weight:600"},LANGS[lc].flag+" "+name),
-      h("div",{style:"font-size:12px;color:#aaa"},desc)
-    ));
-    row.appendChild(h("button",{class:"sbtn",onclick:async()=>{
-      const txt={EN:"Hello! I'm your English teacher.",FR:"Bonjour ! Je suis votre professeur de français.",IT:"Ciao! Sono la tua insegnante di italiano."}[lc];
-      await speak(txt,lc);
-    }},"▶ Test"));
-    panel.appendChild(row);
+  // Engine selector
+  sw.appendChild(h("div",{class:"sec-label"},"Silnik głosowy"));
+  const eg=h("div",{class:"eng-grid"});
+  [["oai","OpenAI TTS","naturalne głosy"],["el","ElevenLabs","bardzo realistyczne"],["browser","Systemowy","darmowy"]].forEach(([eng,name,desc])=>{
+    const btn=h("button",{class:"eng-btn"+(ttsEngine===eng?" sel":""),onclick:()=>{localStorage.setItem("lingua_tts",eng);set({ttsEngine:eng});}});
+    btn.appendChild(h("div",{class:"eng-name"},name));
+    btn.appendChild(h("div",{class:"eng-desc"},desc));
+    eg.appendChild(btn);
   });
+  sw.appendChild(eg);
+
+  if(ttsEngine==="oai"){
+    sw.appendChild(h("div",{class:"sec-label"},"Głos żeński — Aleksandra"));
+    [["nova","Nova","miękki, ciepły, naturalny"],["shimmer","Shimmer","wyraźny, przyjazny"],["alloy","Alloy","neutralny, spokojny"]].forEach(([id,name,desc])=>{
+      const sel=oaiVoiceFemale===id;
+      const row=h("div",{class:"voice-row"+(sel?" sel-row":""),onclick:()=>{localStorage.setItem("lingua_oai_vf",id);set({oaiVoiceFemale:id});}});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      row.appendChild(h("button",{class:"sbtn",style:"font-size:11px",onclick:async(e)=>{
+        e.stopPropagation();if(!oaiKey){alert("Wpisz klucz OpenAI");return;}
+        try{await oaiSpeak({EN:"Hello! How are you today?",FR:"Bonjour ! Comment allez-vous ?",IT:"Ciao! Come stai?"}[S.lang]||"Hello!",id);}
+        catch(e){alert("Błąd: "+e.message);}
+      }},"▶ Test"));
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Głos męski — rozmówca"));
+    [["echo","Echo","naturalny, konwersacyjny"],["fable","Fable","ekspresyjny"],["onyx","Onyx","głęboki, pewny siebie"]].forEach(([id,name,desc])=>{
+      const sel=oaiVoiceMale===id;
+      const row=h("div",{class:"voice-row"+(sel?" sel-row":""),onclick:()=>{localStorage.setItem("lingua_oai_vm",id);set({oaiVoiceMale:id});}});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      row.appendChild(h("button",{class:"sbtn",style:"font-size:11px",onclick:async(e)=>{
+        e.stopPropagation();if(!oaiKey){alert("Wpisz klucz OpenAI");return;}
+        try{await oaiSpeak({EN:"Good morning!",FR:"Bonjour ! Vous désirez ?",IT:"Buongiorno!"}[S.lang]||"Hello!",id);}
+        catch(e){alert("Błąd: "+e.message);}
+      }},"▶ Test"));
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Klucz OpenAI API"));
+    const oaiKi=h("input",{type:"password",class:"key-inp",placeholder:"sk-...",value:oaiKey,oninput:(e)=>set({oaiKey:e.target.value})});
+    sw.appendChild(oaiKi);
+    sw.appendChild(h("div",{style:"font-size:11px;color:var(--ink4);margin-bottom:8px"},"platform.openai.com → API keys → Create new secret key"));
+    if(oaiKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ OpenAI TTS aktywny"));
+    const ob=h("div",{class:"row"});
+    ob.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_oai_key",S.oaiKey.trim());set({oaiKey:S.oaiKey.trim()});}},"Zapisz klucz OpenAI"));
+    if(oaiKey) ob.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_oai_key");set({oaiKey:""});}},"Usuń"));
+    sw.appendChild(ob);
+  }
+
+  if(ttsEngine==="el"){
+    [["EXAVITQu4vr4xnSDxMaL","Sarah","żeński · konwersacyjna"],["onwK4e9ZLuTAKqWW03F9","Daniel","męski · głęboki"]].forEach(([id,name,desc])=>{
+      const row=h("div",{class:"voice-row"});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot",style:"background:var(--gold);border-color:var(--gold)"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      const btns=h("div",{style:"display:flex;gap:5px"});
+      Object.entries(LANGS).forEach(([lc])=>{
+        btns.appendChild(h("button",{class:"sbtn",style:"font-size:11px;padding:4px 8px",onclick:async()=>{
+          if(!elKey){alert("Wpisz klucz ElevenLabs");return;}
+          const txt={EN:"Good morning!",FR:"Bonjour !",IT:"Buongiorno!"}[lc];
+          try{await elSpeak(txt,lc,id);}catch(e){alert("Błąd: "+e.message);}
+        }},LANGS[lc].flag));
+      });
+      row.appendChild(btns);
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Klucz ElevenLabs API"));
+    const ki=h("input",{type:"password",class:"key-inp",placeholder:"sk_...",value:elKeyInput,oninput:(e)=>set({elKeyInput:e.target.value,elMsg:""})});
+    sw.appendChild(ki);
+    if(elMsg){const ok=elMsg.startsWith("ok:");sw.appendChild(h("div",{class:ok?"msg-ok":"msg-err"},elMsg.slice(3)));}
+    if(elKey&&!elMsg) sw.appendChild(h("div",{class:"msg-ok"},"✓ ElevenLabs aktywny"));
+    const eb=h("div",{class:"row"});
+    eb.appendChild(h("button",{class:"sbtn",onclick:testElKey},"Testuj"));
+    eb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_el_key",S.elKeyInput.trim());set({elKey:S.elKeyInput.trim(),elMsg:"ok:Zapisano"});}},"Zapisz"));
+    if(elKey) eb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_el_key");set({elKey:"",elKeyInput:"",elMsg:""});}},"Usuń"));
+    sw.appendChild(eb);
+  }
 
   // Rate slider
-  panel.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Szybkość mówienia"));
-  const rateRow=h("div",{style:"display:flex;align-items:center;gap:12px;margin-bottom:16px"});
-  const rateVal=h("span",{style:"font-size:13px;color:#666;min-width:110px;text-align:right"},rateLabel(voiceRate));
-  const slider=h("input",{type:"range",min:"0.7",max:"1.4",step:"0.05",value:String(voiceRate),style:"flex:1",
-    oninput:(e)=>{const v=parseFloat(e.target.value);rateVal.textContent=rateLabel(v);set({voiceRate:v});localStorage.setItem("lingua_rate",String(v));}});
-  rateRow.appendChild(slider);
-  rateRow.appendChild(rateVal);
-  panel.appendChild(rateRow);
+  sw.appendChild(h("hr",{class:"settings-divider"}));
+  sw.appendChild(h("div",{class:"sec-label"},"Szybkość mówienia"));
+  const rr=h("div",{style:"display:flex;align-items:center;gap:16px;margin-bottom:24px"});
+  const rv=h("span",{style:"font-size:12px;color:var(--ink3);min-width:110px"},rateLabel(voiceRate));
+  const sl=h("input",{type:"range",min:"0.7",max:"1.4",step:"0.05",value:String(voiceRate),style:"flex:1",
+    oninput:(e)=>{const v=parseFloat(e.target.value);rv.textContent=rateLabel(v);set({voiceRate:v});localStorage.setItem("lingua_rate",String(v));}});
+  rr.appendChild(sl);rr.appendChild(rv);
+  sw.appendChild(rr);
 
-  // API key
-  panel.appendChild(h("div",{class:"sec-label"},"Klucz API"));
-  const ki=h("input",{type:"password",class:"key-inp",placeholder:"sk_...",value:elKeyInput,
-    oninput:(e)=>set({elKeyInput:e.target.value,elMsg:""})});
-  panel.appendChild(ki);
-  panel.appendChild(h("div",{style:"font-size:11px;color:#bbb;margin-bottom:12px"},
-    "Klucz zapisywany tylko lokalnie w Twojej przeglądarce."));
+  // Anthropic
+  sw.appendChild(h("hr",{class:"settings-divider"}));
+  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów"));
+  sw.appendChild(h("div",{class:"settings-sub"},"Klucz Anthropic API pozwala rozpoznawać tekst ze zdjęć i PDF-ów. Dostępny na console.anthropic.com → API Keys."));
+  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
+  sw.appendChild(aki);
+  if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
+  const ab=h("div",{class:"row"});
+  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
+  if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
+  sw.appendChild(ab);
+  main.appendChild(sw);
+  w.appendChild(main);
+  return w;
+}
 
-  if(elMsg){
-    const ok=elMsg.startsWith("ok:");
-    panel.appendChild(h("div",{class:ok?"msg-ok":"msg-err"},elMsg.slice(3)));
+function renderAudioMgr(){
+  const lesson = S.audioMgrLesson;
+  if(!lesson) return h("div",{});
+  const la = S.lessonAudio[lesson.id]||{};
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lesson"})},"← Wróć do lekcji"));
+  main.appendChild(h("div",{class:"page-title"},"Nagrania — "+lesson.title));
+  main.appendChild(h("div",{class:"page-sub"},"Wgraj pliki MP3/WAV z naturalnym głosem lektora"));
+
+  const sw=h("div",{style:"max-width:580px"});
+
+  // HOW TO section
+  sw.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;margin-bottom:28px;font-size:13px;color:var(--text2);line-height:1.7"},
+    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak przygotować nagranie?"),
+    h("div",{},"1. Wejdź na ",h("strong",{},"elevenlabs.io")," → Text to Speech"),
+    h("div",{},"2. Wklej tekst dialogu, wybierz głos, pobierz MP3"),
+    h("div",{},"3. Wgraj plik tutaj — agent użyje go zamiast syntetycznego głosu"),
+    h("div",{style:"margin-top:8px;color:var(--text3)"},"Możesz też użyć: Google TTS, Murf.ai, Play.ht, Speechify lub własnego nagrania")
+  ));
+
+  // SLOT 1: Full dialog
+  sw.appendChild(renderAudioSlot(lesson, "full", "Pełny dialog", "Jedno nagranie całego dialogu — obydwie role", la));
+  sw.appendChild(h("div",{style:"text-align:center;color:var(--text3);font-size:12px;margin:16px 0;letter-spacing:.06em"},"— lub osobne nagrania per rola —"));
+  // SLOT 2: Female (Aleksandra)
+  sw.appendChild(renderAudioSlot(lesson, "female", "Głos Aleksandry", "Tylko kwestie Aleksandry czytane przez jeden głos", la));
+  // SLOT 3: Male (other speaker)
+  sw.appendChild(renderAudioSlot(lesson, "male", "Głos rozmówcy", "Kwestie drugiej osoby (barista, lektor, rozmówca)", la));
+
+  // Preview dialog text
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:28px"},"Tekst do skopiowania"));
+  const textBoxFull=h("div",{style:"background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;max-height:200px;overflow-y:auto"});
+  lesson.dialog.forEach(line=>{
+    textBoxFull.appendChild(h("div",{style:"margin-bottom:8px"},
+      h("span",{style:"font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:"+(line.s==="Aleksandra"?"var(--gold)":"var(--text3)")},line.s+": "),
+      h("span",{style:"font-size:13px;color:var(--text)"},line.l)
+    ));
+  });
+  sw.appendChild(textBoxFull);
+  sw.appendChild(h("button",{
+    style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;margin-bottom:12px",
+    onclick:()=>{
+      const txt=lesson.dialog.map(l=>l.s+": "+l.l).join("\n");
+      navigator.clipboard.writeText(txt).then(()=>alert("Skopiowano do schowka!"));
+    }},"📋 Kopiuj cały dialog"));
+
+  // Separate texts per role
+  const femLines=lesson.dialog.filter(l=>l.s==="Aleksandra").map(l=>l.l).join("\n");
+  const maleLines=lesson.dialog.filter(l=>l.s!=="Aleksandra").map(l=>l.l).join("\n");
+  if(femLines){
+    sw.appendChild(h("button",{
+      style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--gold);cursor:pointer;font-size:12px;font-family:inherit;margin-right:8px;margin-bottom:12px",
+      onclick:()=>navigator.clipboard.writeText(femLines).then(()=>alert("Skopiowano kwestie Aleksandry!"))},"📋 Kopiuj kwestie Aleksandry"));
   }
-  if(elKey&&!elMsg)panel.appendChild(h("div",{class:"msg-ok"},"✓ ElevenLabs aktywny"));
-
-  // Anthropic API section
-  panel.appendChild(h("div",{style:"border-top:1px solid #f0f0ec;margin:18px 0"}));
-  panel.appendChild(h("div",{class:"settings-title"},"Anthropic API — rozpoznawanie skanów i PDF"));
-  panel.appendChild(h("div",{class:"settings-sub"},
-    "Wymagane do wgrywania własnych lekcji ze zdjęć i PDF-ów. Klucz dostępny na console.anthropic.com → API Keys."));
-  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",
-    value:S.anthKey||"",
-    oninput:(e)=>set({anthKey:e.target.value})});
-  panel.appendChild(aki);
-  if(S.anthKey){
-    panel.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne — możesz wgrywać materiały"));
+  if(maleLines){
+    sw.appendChild(h("button",{
+      style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
+      onclick:()=>navigator.clipboard.writeText(maleLines).then(()=>alert("Skopiowano kwestie rozmówcy!"))},"📋 Kopiuj kwestie rozmówcy"));
   }
-  const abr=h("div",{class:"row",style:"margin-bottom:16px"});
-  abr.appendChild(h("button",{class:"primary",onclick:()=>{
-    const k=S.anthKey.trim();
-    localStorage.setItem("lingua_anth_key",k);
-    set({anthKey:k});
-    alert("Klucz Anthropic zapisany!");
-  }},"✓ Zapisz klucz Anthropic"));
-  if(S.anthKey)abr.appendChild(h("button",{class:"sbtn danger",onclick:()=>{
-    localStorage.removeItem("lingua_anth_key");
-    set({anthKey:""});
-  }},"Usuń"));
-  panel.appendChild(abr);
 
-  const br=h("div",{class:"row"});
-  br.appendChild(h("button",{class:"sbtn",onclick:testElKey},"Testuj klucz EL"));
-  br.appendChild(h("button",{class:"primary",onclick:()=>{
-    const k=S.elKeyInput.trim();
-    localStorage.setItem("lingua_el_key",k);
-    set({elKey:k,elMsg:"ok:Klucz zapisany!"});
-  }},"✓ Zapisz"));
-  if(elKey)br.appendChild(h("button",{class:"sbtn danger",onclick:()=>{
-    localStorage.removeItem("lingua_el_key");
-    set({elKey:"",elKeyInput:"",elMsg:""});
-  }},"Usuń"));
-  panel.appendChild(br);
-  w.appendChild(panel);
+  main.appendChild(sw);
+  w.appendChild(main);
+  return w;
+}
+
+function renderAudioSlot(lesson, slot, title, desc, la){
+  const hasFile = !!la[slot];
+  const wrap=h("div",{style:"background:var(--surface);border:1.5px solid "+(hasFile?"var(--gold)":"var(--border)")+";border-radius:12px;padding:18px;margin-bottom:12px"});
+
+  const top=h("div",{style:"display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px"});
+  const info=h("div",{});
+  info.appendChild(h("div",{style:"font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px"},
+    (hasFile?"✓ ":"")+title));
+  info.appendChild(h("div",{style:"font-size:12px;color:var(--text3)"},desc));
+  top.appendChild(info);
+  if(hasFile){
+    top.appendChild(h("button",{
+      style:"padding:5px 12px;border-radius:6px;border:1px solid #fca5a5;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:11px;font-family:inherit",
+      onclick:()=>deleteLessonAudio(lesson.id, slot)},"Usuń"));
+  }
+  wrap.appendChild(top);
+
+  if(hasFile){
+    // Audio player
+    const audio=h("audio",{controls:"true",style:"width:100%;height:36px"});
+    audio.src=la[slot];
+    wrap.appendChild(audio);
+  } else {
+    // Upload area
+    const lbl=h("label",{style:"display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;border:1.5px dashed var(--border2);border-radius:8px;cursor:pointer;background:var(--accent-bg);transition:background .15s"});
+    lbl.onmouseover=()=>{lbl.style.background="var(--border)";};
+    lbl.onmouseout=()=>{lbl.style.background="var(--accent-bg)";};
+    lbl.appendChild(h("span",{style:"font-size:20px;opacity:.5"},"🎵"));
+    lbl.appendChild(h("span",{style:"font-size:13px;color:var(--text2)"},"Kliknij aby wgrać MP3 lub WAV"));
+    const inp=h("input",{type:"file",accept:"audio/*",style:"display:none",
+      onchange:async(e)=>{
+        if(!e.target.files[0]) return;
+        const file=e.target.files[0];
+        if(file.size > 10*1024*1024){alert("Plik za duży — maksymalnie 10 MB");return;}
+        const dataUrl=await fileToDataUrl(file);
+        saveLessonAudio(lesson.id, slot, dataUrl);
+      }});
+    lbl.appendChild(inp);
+    wrap.appendChild(lbl);
+    wrap.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-top:6px;text-align:center"},"Maksymalnie 10 MB · MP3, WAV, M4A"));
+  }
+  return wrap;
+}
+
+function renderFilmoteka(){
+  const{lang, filmUploadStep, filmFile, filmProcessing, filmError, anthKey}=S;
+  const films = FILMS[lang]||[];
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  w.appendChild(h("div",{class:"lang-hero"},
+    ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
+      onclick:()=>set({lang:code,filmLang:code})},
+      h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
+  ));
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
+  main.appendChild(h("div",{class:"page-title"},"🎬 Filmoteka"));
+  main.appendChild(h("div",{class:"page-sub"},"Ucz się z fragmentów filmów i seriali — "+ LANGS[lang].name));
+
+  // Upload section
+  const uploadSection=h("div",{style:"margin-bottom:36px"});
+  uploadSection.appendChild(h("div",{class:"section-head"},
+    h("div",{class:"section-title"},"Wgraj własny fragment"),
+    h("div",{style:"font-size:12px;color:var(--text3)"},"MP4 · MP3 · WAV · max 25MB")
+  ));
+
+  if(!anthKey){
+    uploadSection.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--text2)"},
+      "⚠️ Potrzebujesz klucza Anthropic API — wejdź w ",h("strong",{},"Ustawienia lektora")," i wpisz klucz."));
+  } else if(filmUploadStep===0){
+    const area=h("div",{class:"upload-film-area"});
+    area.appendChild(h("div",{class:"upload-film-icon"},"🎬"));
+    area.appendChild(h("div",{class:"upload-film-title"},"Kliknij aby wgrać fragment"));
+    area.appendChild(h("div",{class:"upload-film-sub"},"MP4, MP3, WAV — Claude transkrybuje i tworzy lekcję automatycznie"));
+    const inp=h("input",{type:"file",accept:"audio/*,video/*",style:"display:none",
+      onchange:(e)=>{
+        if(!e.target.files[0]) return;
+        if(e.target.files[0].size > 25*1024*1024){alert("Plik za duży — max 25MB");return;}
+        set({filmFile:e.target.files[0],filmUploadStep:1,filmError:""});
+      }});
+    area.onclick=()=>inp.click();
+    area.appendChild(inp);
+    uploadSection.appendChild(area);
+  } else if(filmUploadStep===1){
+    uploadSection.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ "+filmFile.name+" ("+Math.round(filmFile.size/1024/1024*10)/10+" MB)"));
+    if(!filmProcessing){
+      uploadSection.appendChild(h("button",{class:"check-btn",onclick:processFilm},"🎬 Analizuj z AI → utwórz lekcję"));
+      uploadSection.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-top:8px;display:block",
+        onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"← Anuluj"));
+    } else {
+      uploadSection.appendChild(h("div",{style:"text-align:center;padding:24px;color:var(--text2);font-size:13px"},
+        h("div",{style:"font-size:24px;margin-bottom:8px"},"⏳"),
+        h("div",{},"Claude transkrybuje i analizuje fragment..."),
+        h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"Może potrwać kilkanaście sekund")
+      ));
+    }
+    if(filmError) uploadSection.appendChild(h("div",{class:"msg-err"},filmError));
+  } else if(filmUploadStep===3){
+    uploadSection.appendChild(h("div",{class:"msg-ok"},"✓ Lekcja z fragmentu została dodana do sekcji Moje lekcje!"));
+    uploadSection.appendChild(h("button",{class:"add-btn",style:"margin-top:10px",
+      onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"+ Wgraj kolejny fragment"));
+  }
+  main.appendChild(uploadSection);
+
+  // Curated suggestions
+  main.appendChild(h("div",{class:"section-head"},
+    h("div",{class:"section-title"},"Polecane do nauki "+LANGS[lang].name),
+    h("div",{style:"font-size:12px;color:var(--text3)"},"sugerowane sceny do pobrania i wgrania")
+  ));
+  const grid=h("div",{class:"film-grid"});
+  films.forEach(film=>{
+    const card=h("div",{class:"film-card"});
+    const body=h("div",{class:"film-body"});
+    body.appendChild(h("div",{},
+      h("span",{class:"film-badge"},film.type==="film"?"🎞 Film":"📺 Serial"),
+      h("span",{class:"film-badge",style:"margin-left:4px"},film.level),
+      h("span",{class:"film-badge",style:"margin-left:4px"},film.platform)
+    ));
+    body.appendChild(h("div",{class:"film-title"},film.title));
+    body.appendChild(h("div",{class:"film-desc"},film.desc));
+    body.appendChild(h("div",{class:"film-scene"},"💡 Sugerowana scena: "+film.scene));
+    card.appendChild(body);
+    const strip=h("div",{class:"film-strip"});
+    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
+      navigator.clipboard.writeText("Znajdź na "+film.platform+": "+film.title+". Sugerowana scena: "+film.scene)
+        .then(()=>alert("Skopiowano info o filmie!"));
+    }},"📋 Kopiuj info"));
+    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
+      const query=encodeURIComponent(film.title+" "+film.scene+" clip scene");
+      window.open("https://www.youtube.com/results?search_query="+query,"_blank");
+    }},"▶ Szukaj na YT"));
+    card.appendChild(strip);
+    grid.appendChild(card);
+  });
+  main.appendChild(grid);
+
+  // How-to note
+  main.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--text2);line-height:1.7"},
+    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak używać Filmoteki?"),
+    h("div",{},"1. Znajdź scenę na YouTube lub Netflix → pobierz audio (np. przez ",h("strong",{},"yt-dlp"),")"),
+    h("div",{},"2. Wgraj plik MP3/MP4 powyżej"),
+    h("div",{},"3. Claude automatycznie transkrybuje, tłumaczy i tworzy fiszki, gramatykę i ćwiczenia"),
+    h("div",{},"4. Lekcja pojawia się w sekcji ",h("strong",{},"Moje lekcje"),", możesz do niej wracać i ćwiczyć")
+  ));
+
+  w.appendChild(main);
+  return w;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+
+window.speechSynthesis.onvoiceschanged=()=>{};
+setTimeout(render,50);
+
+// ── VOICE CONFIG ─────────────────────────────────────────────────────────────
+const OAI_VOICES = [
+  {id:"nova",    name:"Nova",    desc:"żeński · ciepły, naturalny"},
+  {id:"shimmer", name:"Shimmer", desc:"żeński · miękki, wyraźny"},
+  {id:"alloy",   name:"Alloy",   desc:"żeński/neutralny · spokojny"},
+  {id:"echo",    name:"Echo",    desc:"męski · naturalny"},
+  {id:"fable",   name:"Fable",   desc:"męski · ekspresyjny"},
+  {id:"onyx",    name:"Onyx",    desc:"męski · głęboki, pewny"},
+];
+
+// ElevenLabs voices (kept as fallback option)
+
+
+function renderUploadPanel(){
+  const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,anthKey}=S;
+  const panel=h("div",{class:"upload-panel"});
+  const ph=h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"});
+  ph.appendChild(h("div",{},
+    h("div",{class:"upload-title"},"Wgraj własną lekcję"),
+    h("div",{class:"upload-sub"},"Zdjęcie, PDF lub tekst — Claude przeanalizuje i stworzy lekcję")
+  ));
+  ph.appendChild(h("button",{style:"background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink3)",onclick:()=>set({showUpload:false})},"✕"));
+  panel.appendChild(ph);
+
+  if(!anthKey){
+    panel.appendChild(h("div",{class:"msg-err",style:"margin-bottom:0"},"⚠️ Potrzebujesz klucza Anthropic API — wejdź w Ustawienia lektora."));
+    return panel;
+  }
+
+  if(uploadStep===0){
+    const ug=h("div",{class:"upload-grid"});
+    const imgL=h("label",{class:"upload-opt"});
+    imgL.appendChild(h("div",{class:"uicon"},"📸"));
+    imgL.appendChild(h("div",{class:"ulabel"},"Zdjęcie / Skan"));
+    imgL.appendChild(h("div",{class:"udesc"},"JPG, PNG"));
+    const ii=h("input",{type:"file",accept:"image/*",style:"display:none",onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
+    imgL.appendChild(ii);
+    ug.appendChild(imgL);
+    const pdfL=h("label",{class:"upload-opt"});
+    pdfL.appendChild(h("div",{class:"uicon"},"📄"));
+    pdfL.appendChild(h("div",{class:"ulabel"},"Plik PDF"));
+    pdfL.appendChild(h("div",{class:"udesc"},"PDF"));
+    const pi=h("input",{type:"file",accept:".pdf",style:"display:none",onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
+    pdfL.appendChild(pi);
+    ug.appendChild(pdfL);
+    panel.appendChild(ug);
+    panel.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Lub wklej tekst"));
+    const ta=h("textarea",{style:"width:100%;min-height:120px;padding:14px;border:1px solid var(--line);background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:vertical;color:var(--ink)",
+      placeholder:"Wklej tekst, dialog lub słówka z podręcznika...",
+      oninput:(e)=>set({uploadPreview:e.target.value})});
+    panel.appendChild(ta);
+    if(S.uploadPreview&&typeof S.uploadPreview==="string"&&S.uploadPreview.length>10){
+      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:12px",onclick:()=>{set({uploadStep:1});processUpload();}},"Analizuj tekst"));
+    }
+  }
+
+  if(uploadStep===1&&uploadFile){
+    panel.appendChild(h("div",{class:"msg-ok"},"✓ "+uploadFile.name+" ("+Math.round(uploadFile.size/1024)+" KB)"));
+    if(!uploadProcessing){
+      panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"Analizuj z AI"));
+    } else {
+      panel.appendChild(h("div",{style:"padding:20px;text-align:center;color:var(--ink3);font-size:13px"},"⏳ Claude analizuje materiał..."));
+    }
+  }
+
+  if(uploadError) panel.appendChild(h("div",{class:"msg-err"},uploadError));
+
+  if(uploadStep===2&&uploadPreview&&typeof uploadPreview==="object"){
+    const prev=uploadPreview;
+    panel.appendChild(h("div",{class:"msg-ok"},
+      h("div",{style:"font-weight:500;margin-bottom:4px"},prev.title||"Bez tytułu"),
+      h("div",{style:"font-size:12px"},
+        (prev.level||"")+" · "+(prev.dialog||[]).length+" linii · "+(prev.vocab||[]).length+" słówek · "+(prev.grammar||[]).length+" zasad")
+    ));
+    const br=h("div",{style:"display:flex;gap:8px;margin-top:12px"});
+    br.appendChild(h("button",{class:"check-btn",style:"flex:2;margin:0",onclick:()=>saveMyLesson(uploadLang,prev)},"✓ Zapisz lekcję"));
+    br.appendChild(h("button",{class:"next-btn",style:"margin:0;flex:1",onclick:()=>set({uploadStep:0,uploadFile:null,uploadPreview:null})},"← Wróć"));
+    panel.appendChild(br);
+  }
+  return panel;
+}
+
+function renderLesson(){
+  const{lesson,lang,mode,playing,playingLine}=S;
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  w.appendChild(h("div",{class:"lang-hero"},
+    ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
+      onclick:()=>set({lang:code,screen:"lang"})},
+      h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
+  ));
+  const main=h("div",{class:"main"});
+  h("button",{class:"back-btn",onclick:()=>{stopDialog();set({screen:"lang"})}},"← "+LANGS[lang].name+" / "+lesson.title);
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>{stopDialog();set({screen:"lang"})}},
+    "← ",h("span",{style:"letter-spacing:.06em;text-transform:uppercase;font-size:10px"},LANGS[lang].name)
+  ));
+
+  main.appendChild(h("div",{class:"lesson-header"},
+    h("div",{class:"page-title"},lesson.title),
+    h("div",{class:"page-sub"},lesson.topic+" · "+lesson.level)
+  ));
+
+  // Video player if lesson has video
+  if(lesson.hasVideo && S.lessonVideos[lesson.id]){
+    const videoWrap=h("div",{style:"max-width:680px;margin-bottom:32px"});
+    const video=h("video",{controls:"true",style:"width:100%;border-radius:10px;background:#000;max-height:380px"});
+    video.style.display="none";
+    // Load from IndexedDB
+    loadVideo(S.lessonVideos[lesson.id]).then(blob=>{
+      if(blob){
+        const url=URL.createObjectURL(blob);
+        video.src=url;
+        video.style.display="block";
+      }
+    });
+    videoWrap.appendChild(video);
+    // Shadowing mode toggle
+    const shadowBtn=h("button",{
+      style:"margin-top:8px;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
+      onclick:()=>{
+        // pause video after each subtitle line
+        const lines=main.querySelectorAll(".dline-orig");
+        alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶");
+      }
+    },"🎭 Tryb shadowing — jak używać?");
+    videoWrap.appendChild(shadowBtn);
+    main.appendChild(videoWrap);
+  }
+
+  if(mode==="dialog"){
+    const dw=h("div",{class:"dialog-wrap"});
+    const lessonAudio = S.lessonAudio[lesson.id]||{};
+    const hasAudio = lessonAudio.full || lessonAudio.female || lessonAudio.male;
+    const dc=h("div",{class:"dialog-controls"});
+    dc.appendChild(h("div",{class:"dialog-label"},"Dialog"));
+    const btnGroup=h("div",{style:"display:flex;gap:8px;align-items:center"});
+    // Audio management button
+    btnGroup.appendChild(h("button",{
+      style:"padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:"+(hasAudio?"var(--text)":"var(--surface)")+";color:"+(hasAudio?"#fff":"var(--text2)")+";cursor:pointer;font-size:11px;font-family:inherit;letter-spacing:.04em",
+      onclick:()=>set({screen:"audiomgr",lesson,audioMgrLesson:lesson})
+    },hasAudio?"🎵 Nagrania":"+ Wgraj nagranie"));
+    // Play button
+    if(S.audioPlaying){
+      btnGroup.appendChild(h("button",{class:"stop-btn",onclick:stopAudio},"⏹ Stop"));
+    } else if(hasAudio){
+      btnGroup.appendChild(h("button",{class:"play-btn",onclick:()=>playDialogWithAudio(lesson.dialog,lang,lesson.id)},"▶ Odtwórz nagranie"));
+      btnGroup.appendChild(h("button",{class:"play-btn",style:"background:var(--surface);color:var(--text2);border:1px solid var(--border)",onclick:()=>playDialog(lesson.dialog,lang)},"▶ Syntetyczny"));
+    } else {
+      btnGroup.appendChild(playing
+        ? h("button",{class:"stop-btn",onclick:stopDialog},"⏹ Stop")
+        : h("button",{class:"play-btn",onclick:()=>playDialog(lesson.dialog,lang)},"▶ Odtwórz")
+      );
+    }
+    dc.appendChild(btnGroup);
+    dw.appendChild(dc);
+    lesson.dialog.forEach((line,i)=>{
+      const row=h("div",{class:"dline"+(playingLine===i?" active":"")});
+      const spkDiv=h("div",{class:"spk"+(line.s==="Aleksandra"?" me":"")},line.s.toUpperCase());
+      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===i?"▶":"♪"));
+      row.appendChild(spkDiv);
+      const txt=h("div",{class:"dline-text"});
+      txt.appendChild(h("div",{class:"dline-orig"},line.l));
+      txt.appendChild(h("div",{class:"dline-tr"},line.t));
+      row.appendChild(txt);
+      dw.appendChild(row);
+    });
+    main.appendChild(dw);
+
+    const vw=h("div",{class:"vocab-wrap"});
+    vw.appendChild(h("div",{class:"sec-label"},"Słownictwo"));
+    lesson.vocab.forEach(v=>{
+      const row=h("div",{class:"vrow"});
+      row.appendChild(h("button",{class:"spk-btn",onclick:()=>speak(v.w,lang,"")},"♪"));
+      const wDiv=h("div",{});
+      wDiv.appendChild(h("div",{class:"v-word"},v.w));
+      if(v.ipa) wDiv.appendChild(h("div",{class:"v-meta"},v.ipa+" · "+v.pl));
+      row.appendChild(wDiv);
+      row.appendChild(h("div",{class:"v-tr"},v.tr));
+      vw.appendChild(row);
+    });
+    main.appendChild(vw);
+  }
+
+  if(mode==="grammar"){
+    const gw=h("div",{class:"grammar-wrap"});
+    gw.appendChild(h("div",{class:"sec-label",style:"margin-bottom:20px"},"Gramatyka lekcji"));
+    lesson.grammar.forEach(g=>{
+      const blk=h("div",{class:"grammar-block"});
+      blk.appendChild(h("div",{class:"grammar-rule"},g.rule));
+      blk.appendChild(h("div",{class:"grammar-ex"},g.ex));
+      blk.appendChild(h("div",{class:"grammar-extr"},g.exT));
+      if(g.note) blk.appendChild(h("div",{class:"grammar-note"},g.note));
+      gw.appendChild(blk);
+    });
+    main.appendChild(gw);
+  }
+
+  w.appendChild(main);
+  return w;
+}
+
+function renderPractice(){
+  const{lesson,lang,mode,cards,idx,revealed,dir,score,input,submitted}=S;
+  const card=cards[idx];
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← "+LANGS[lang].name));
+  main.appendChild(h("div",{class:"prog-info"},
+    h("span",{},(idx+1)+" / "+cards.length+" · "+(mode==="flashcard"?"Fiszki":"Uzupełnianie")),
+    h("span",{style:"color:var(--gold)"},"✓ "+score.c+" / "+score.t)
+  ));
+  const pb=h("div",{class:"prog-bar"});
+  pb.appendChild(h("div",{class:"prog-fill",style:"width:"+Math.round(idx/cards.length*100)+"%"}));
+  main.appendChild(pb);
+
+  if(mode==="flashcard"){
+    const fw=h("div",{class:"fc-wrap"});
+    const dr=h("div",{class:"dir-row"});
+    [["to_pl",LANGS[lang].flag+" → 🇵🇱"],["to_lang","🇵🇱 → "+LANGS[lang].flag],["mix","🔀 Mix"]].forEach(([d,label])=>{
+      dr.appendChild(h("button",{class:"dir-btn"+(dir===d?" sel":""),
+        onclick:()=>set({dir:d==="mix"?(Math.random()>.5?"to_pl":"to_lang"):d,revealed:false})},label));
+    });
+    fw.appendChild(dr);
+
+    const topl=dir==="to_pl";
+    const fc=h("div",{class:"fc"+(revealed?" open":""),onclick:()=>{if(!revealed)set({revealed:true});}});
+    fc.appendChild(h("div",{class:"fc-lang"},topl?(LANGS[lang].name+" → Polski"):("Polski → "+LANGS[lang].name)));
+    if(topl){
+      fc.appendChild(h("div",{class:"fc-word"},card.w));
+      fc.appendChild(h("button",{class:"spk-btn",style:"font-size:18px;margin:6px 0;opacity:.4",onclick:(e)=>{e.stopPropagation();speak(card.w,lang,"aleksandra");}},"♪"));
+      if(!revealed) fc.appendChild(h("div",{class:"hint"},"— dotknij aby ujawnić —"));
+      else{
+        fc.appendChild(h("div",{class:"fc-tr"},card.tr));
+        fc.appendChild(h("div",{class:"fc-ipa"},card.ipa));
+        fc.appendChild(h("div",{class:"fc-pl"},"czytaj: "+card.pl));
+        if(card.ex){const ex=h("div",{class:"fc-ex"});ex.appendChild(h("div",{},card.ex));ex.appendChild(h("div",{class:"fc-ex-tr"},card.exT));fc.appendChild(ex);}
+      }
+    } else {
+      fc.appendChild(h("div",{class:"fc-tr",style:"font-size:32px;margin-bottom:4px"},card.tr));
+      if(!revealed) fc.appendChild(h("div",{class:"hint"},"— dotknij aby ujawnić —"));
+      else{
+        fc.appendChild(h("div",{class:"fc-word"},card.w));
+        fc.appendChild(h("button",{class:"spk-btn",style:"font-size:18px;margin:6px 0;opacity:.4",onclick:(e)=>{e.stopPropagation();speak(card.w,lang,"aleksandra");}},"♪"));
+        fc.appendChild(h("div",{class:"fc-ipa"},card.ipa));
+        fc.appendChild(h("div",{class:"fc-pl"},"czytaj: "+card.pl));
+        if(card.ex){const ex=h("div",{class:"fc-ex"});ex.appendChild(h("div",{},card.ex));ex.appendChild(h("div",{class:"fc-ex-tr"},card.exT));fc.appendChild(ex);}
+      }
+    }
+    fw.appendChild(fc);
+    if(revealed){
+      const ar=h("div",{class:"ans-row"});
+      ar.appendChild(h("button",{class:"btn-no",onclick:()=>{set({score:{c:S.score.c,t:S.score.t+1}});nextCard();}},"✗  Nie wiedziałam"));
+      ar.appendChild(h("button",{class:"btn-yes",onclick:()=>{set({score:{c:S.score.c+1,t:S.score.t+1}});nextCard();}},"✓  Wiedziałam"));
+      fw.appendChild(ar);
+    }
+    main.appendChild(fw);
+  }
+
+  if(mode==="fill"){
+    const fw=h("div",{class:"fill-wrap"});
+    fw.appendChild(h("div",{class:"fill-hint"},"Wskazówka: "+card.h));
+    // Replace ___ with letter-count blanks
+const blankedSentence = card.s.replace(/___/g, ()=>{
+  const count = card.a.length;
+  return "_ ".repeat(count).trim().split(" ").join(" ");
+});
+// Render with styled blank
+const sentDiv = h("div",{class:"fill-sentence"});
+const parts = card.s.split("___");
+if(parts.length === 2){
+  sentDiv.appendChild(document.createTextNode(parts[0]));
+  const blank = h("span",{style:"display:inline-block;border-bottom:2px solid var(--gold);min-width:"+(card.a.length*14)+"px;margin:0 4px;color:var(--gold);letter-spacing:4px;font-family:monospace"},"_".repeat(card.a.length));
+  sentDiv.appendChild(blank);
+  sentDiv.appendChild(document.createTextNode(parts[1]));
+} else {
+  sentDiv.appendChild(document.createTextNode(card.s));
+}
+fw.appendChild(sentDiv);
+    const ok=submitted&&input.trim().toLowerCase()===card.a.toLowerCase();
+    const bad=submitted&&input.trim().toLowerCase()!==card.a.toLowerCase();
+    const inp=h("input",{type:"text",class:"fill-inp"+(ok?" ok":bad?" bad":""),
+      placeholder:"wpisz brakujące słowo",
+      onchange:(e)=>{ S.input=e.target.value; },
+      onkeydown:(e)=>{
+        S.input=e.target.value;
+        if(e.key==="Enter"&&!submitted){set({input:e.target.value,submitted:true});}
+      }});
+    inp.value=input;
+    fw.appendChild(inp);
+    if(!submitted) fw.appendChild(h("button",{class:"check-btn",onclick:()=>{const v=main.querySelector('.fill-inp');set({input:v?v.value:S.input,submitted:true});}},"Sprawdź"));
+    if(submitted){
+      fw.appendChild(h("div",{class:"feedback "+(ok?"ok":"bad")},ok?"✓ Poprawnie!":"✗ Poprawna odpowiedź: "+card.a));
+      fw.appendChild(h("button",{class:"next-btn",onclick:()=>{set({score:{c:ok?S.score.c+1:S.score.c,t:S.score.t+1}});nextCard();}},"Następne →"));
+    }
+    main.appendChild(fw);
+  }
+
+  w.appendChild(main);
+  return w;
+}
+
+function renderResults(){
+  const{score,lesson,mode,lang}=S;
+  const pct=score.t>0?score.c/score.t:0;
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  const rw=h("div",{class:"result-wrap"});
+  rw.appendChild(h("div",{class:"result-emoji"},pct>=.8?"🏆":pct>=.5?"💪":"📚"));
+  rw.appendChild(h("div",{class:"result-title"},score.c+" / "+score.t));
+  rw.appendChild(h("div",{class:"result-sub"},pct>=.8?"Świetny wynik! Czas na kolejną lekcję.":"Powtórz jeszcze raz — repetition is key."));
+  const btns=h("div",{class:"result-btns"});
+  btns.appendChild(h("button",{class:"result-btn primary",onclick:()=>startPractice(lesson,mode)},"Jeszcze raz"));
+  btns.appendChild(h("button",{class:"result-btn",onclick:()=>set({screen:"lesson",mode:"dialog",playing:false,playingLine:-1})},"Dialog"));
+  btns.appendChild(h("button",{class:"result-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
+  rw.appendChild(btns);
+  main.appendChild(rw);
+  w.appendChild(main);
+  return w;
+}
+
+function renderSettings(){
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey}=S;
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:S.lang?"lang":"home"})},"← Powrót"));
+  const sw=h("div",{class:"settings-wrap"});
+  sw.appendChild(h("div",{class:"settings-title"},"Ustawienia lektora"));
+  sw.appendChild(h("div",{class:"settings-sub"},"Wybierz silnik głosowy i skonfiguruj klucze API."));
+
+  // Engine selector
+  sw.appendChild(h("div",{class:"sec-label"},"Silnik głosowy"));
+  const eg=h("div",{class:"eng-grid"});
+  [["oai","OpenAI TTS","naturalne głosy"],["el","ElevenLabs","bardzo realistyczne"],["browser","Systemowy","darmowy"]].forEach(([eng,name,desc])=>{
+    const btn=h("button",{class:"eng-btn"+(ttsEngine===eng?" sel":""),onclick:()=>{localStorage.setItem("lingua_tts",eng);set({ttsEngine:eng});}});
+    btn.appendChild(h("div",{class:"eng-name"},name));
+    btn.appendChild(h("div",{class:"eng-desc"},desc));
+    eg.appendChild(btn);
+  });
+  sw.appendChild(eg);
+
+  if(ttsEngine==="oai"){
+    sw.appendChild(h("div",{class:"sec-label"},"Głos żeński — Aleksandra"));
+    [["nova","Nova","miękki, ciepły, naturalny"],["shimmer","Shimmer","wyraźny, przyjazny"],["alloy","Alloy","neutralny, spokojny"]].forEach(([id,name,desc])=>{
+      const sel=oaiVoiceFemale===id;
+      const row=h("div",{class:"voice-row"+(sel?" sel-row":""),onclick:()=>{localStorage.setItem("lingua_oai_vf",id);set({oaiVoiceFemale:id});}});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      row.appendChild(h("button",{class:"sbtn",style:"font-size:11px",onclick:async(e)=>{
+        e.stopPropagation();if(!oaiKey){alert("Wpisz klucz OpenAI");return;}
+        try{await oaiSpeak({EN:"Hello! How are you today?",FR:"Bonjour ! Comment allez-vous ?",IT:"Ciao! Come stai?"}[S.lang]||"Hello!",id);}
+        catch(e){alert("Błąd: "+e.message);}
+      }},"▶ Test"));
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Głos męski — rozmówca"));
+    [["echo","Echo","naturalny, konwersacyjny"],["fable","Fable","ekspresyjny"],["onyx","Onyx","głęboki, pewny siebie"]].forEach(([id,name,desc])=>{
+      const sel=oaiVoiceMale===id;
+      const row=h("div",{class:"voice-row"+(sel?" sel-row":""),onclick:()=>{localStorage.setItem("lingua_oai_vm",id);set({oaiVoiceMale:id});}});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      row.appendChild(h("button",{class:"sbtn",style:"font-size:11px",onclick:async(e)=>{
+        e.stopPropagation();if(!oaiKey){alert("Wpisz klucz OpenAI");return;}
+        try{await oaiSpeak({EN:"Good morning!",FR:"Bonjour ! Vous désirez ?",IT:"Buongiorno!"}[S.lang]||"Hello!",id);}
+        catch(e){alert("Błąd: "+e.message);}
+      }},"▶ Test"));
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Klucz OpenAI API"));
+    const oaiKi=h("input",{type:"password",class:"key-inp",placeholder:"sk-...",value:oaiKey,oninput:(e)=>set({oaiKey:e.target.value})});
+    sw.appendChild(oaiKi);
+    sw.appendChild(h("div",{style:"font-size:11px;color:var(--ink4);margin-bottom:8px"},"platform.openai.com → API keys → Create new secret key"));
+    if(oaiKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ OpenAI TTS aktywny"));
+    const ob=h("div",{class:"row"});
+    ob.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_oai_key",S.oaiKey.trim());set({oaiKey:S.oaiKey.trim()});}},"Zapisz klucz OpenAI"));
+    if(oaiKey) ob.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_oai_key");set({oaiKey:""});}},"Usuń"));
+    sw.appendChild(ob);
+  }
+
+  if(ttsEngine==="el"){
+    [["EXAVITQu4vr4xnSDxMaL","Sarah","żeński · konwersacyjna"],["onwK4e9ZLuTAKqWW03F9","Daniel","męski · głęboki"]].forEach(([id,name,desc])=>{
+      const row=h("div",{class:"voice-row"});
+      const left=h("div",{style:"display:flex;align-items:center;gap:10px"});
+      left.appendChild(h("div",{class:"voice-dot",style:"background:var(--gold);border-color:var(--gold)"}));
+      left.appendChild(h("div",{},h("div",{class:"v-name"},name),h("div",{class:"v-desc"},desc)));
+      row.appendChild(left);
+      const btns=h("div",{style:"display:flex;gap:5px"});
+      Object.entries(LANGS).forEach(([lc])=>{
+        btns.appendChild(h("button",{class:"sbtn",style:"font-size:11px;padding:4px 8px",onclick:async()=>{
+          if(!elKey){alert("Wpisz klucz ElevenLabs");return;}
+          const txt={EN:"Good morning!",FR:"Bonjour !",IT:"Buongiorno!"}[lc];
+          try{await elSpeak(txt,lc,id);}catch(e){alert("Błąd: "+e.message);}
+        }},LANGS[lc].flag));
+      });
+      row.appendChild(btns);
+      sw.appendChild(row);
+    });
+    sw.appendChild(h("hr",{class:"settings-divider"}));
+    sw.appendChild(h("div",{class:"sec-label"},"Klucz ElevenLabs API"));
+    const ki=h("input",{type:"password",class:"key-inp",placeholder:"sk_...",value:elKeyInput,oninput:(e)=>set({elKeyInput:e.target.value,elMsg:""})});
+    sw.appendChild(ki);
+    if(elMsg){const ok=elMsg.startsWith("ok:");sw.appendChild(h("div",{class:ok?"msg-ok":"msg-err"},elMsg.slice(3)));}
+    if(elKey&&!elMsg) sw.appendChild(h("div",{class:"msg-ok"},"✓ ElevenLabs aktywny"));
+    const eb=h("div",{class:"row"});
+    eb.appendChild(h("button",{class:"sbtn",onclick:testElKey},"Testuj"));
+    eb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_el_key",S.elKeyInput.trim());set({elKey:S.elKeyInput.trim(),elMsg:"ok:Zapisano"});}},"Zapisz"));
+    if(elKey) eb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_el_key");set({elKey:"",elKeyInput:"",elMsg:""});}},"Usuń"));
+    sw.appendChild(eb);
+  }
+
+  // Rate slider
+  sw.appendChild(h("hr",{class:"settings-divider"}));
+  sw.appendChild(h("div",{class:"sec-label"},"Szybkość mówienia"));
+  const rr=h("div",{style:"display:flex;align-items:center;gap:16px;margin-bottom:24px"});
+  const rv=h("span",{style:"font-size:12px;color:var(--ink3);min-width:110px"},rateLabel(voiceRate));
+  const sl=h("input",{type:"range",min:"0.7",max:"1.4",step:"0.05",value:String(voiceRate),style:"flex:1",
+    oninput:(e)=>{const v=parseFloat(e.target.value);rv.textContent=rateLabel(v);set({voiceRate:v});localStorage.setItem("lingua_rate",String(v));}});
+  rr.appendChild(sl);rr.appendChild(rv);
+  sw.appendChild(rr);
+
+  // Anthropic
+  sw.appendChild(h("hr",{class:"settings-divider"}));
+  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów"));
+  sw.appendChild(h("div",{class:"settings-sub"},"Klucz Anthropic API pozwala rozpoznawać tekst ze zdjęć i PDF-ów. Dostępny na console.anthropic.com → API Keys."));
+  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
+  sw.appendChild(aki);
+  if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
+  const ab=h("div",{class:"row"});
+  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
+  if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
+  sw.appendChild(ab);
+  main.appendChild(sw);
+  w.appendChild(main);
+  return w;
+}
+
+function renderAudioMgr(){
+  const lesson = S.audioMgrLesson;
+  if(!lesson) return h("div",{});
+  const la = S.lessonAudio[lesson.id]||{};
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lesson"})},"← Wróć do lekcji"));
+  main.appendChild(h("div",{class:"page-title"},"Nagrania — "+lesson.title));
+  main.appendChild(h("div",{class:"page-sub"},"Wgraj pliki MP3/WAV z naturalnym głosem lektora"));
+
+  const sw=h("div",{style:"max-width:580px"});
+
+  // HOW TO section
+  sw.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;margin-bottom:28px;font-size:13px;color:var(--text2);line-height:1.7"},
+    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak przygotować nagranie?"),
+    h("div",{},"1. Wejdź na ",h("strong",{},"elevenlabs.io")," → Text to Speech"),
+    h("div",{},"2. Wklej tekst dialogu, wybierz głos, pobierz MP3"),
+    h("div",{},"3. Wgraj plik tutaj — agent użyje go zamiast syntetycznego głosu"),
+    h("div",{style:"margin-top:8px;color:var(--text3)"},"Możesz też użyć: Google TTS, Murf.ai, Play.ht, Speechify lub własnego nagrania")
+  ));
+
+  // SLOT 1: Full dialog
+  sw.appendChild(renderAudioSlot(lesson, "full", "Pełny dialog", "Jedno nagranie całego dialogu — obydwie role", la));
+  sw.appendChild(h("div",{style:"text-align:center;color:var(--text3);font-size:12px;margin:16px 0;letter-spacing:.06em"},"— lub osobne nagrania per rola —"));
+  // SLOT 2: Female (Aleksandra)
+  sw.appendChild(renderAudioSlot(lesson, "female", "Głos Aleksandry", "Tylko kwestie Aleksandry czytane przez jeden głos", la));
+  // SLOT 3: Male (other speaker)
+  sw.appendChild(renderAudioSlot(lesson, "male", "Głos rozmówcy", "Kwestie drugiej osoby (barista, lektor, rozmówca)", la));
+
+  // Preview dialog text
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:28px"},"Tekst do skopiowania"));
+  const textBoxFull=h("div",{style:"background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;max-height:200px;overflow-y:auto"});
+  lesson.dialog.forEach(line=>{
+    textBoxFull.appendChild(h("div",{style:"margin-bottom:8px"},
+      h("span",{style:"font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:"+(line.s==="Aleksandra"?"var(--gold)":"var(--text3)")},line.s+": "),
+      h("span",{style:"font-size:13px;color:var(--text)"},line.l)
+    ));
+  });
+  sw.appendChild(textBoxFull);
+  sw.appendChild(h("button",{
+    style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;margin-bottom:12px",
+    onclick:()=>{
+      const txt=lesson.dialog.map(l=>l.s+": "+l.l).join("\n");
+      navigator.clipboard.writeText(txt).then(()=>alert("Skopiowano do schowka!"));
+    }},"📋 Kopiuj cały dialog"));
+
+  // Separate texts per role
+  const femLines=lesson.dialog.filter(l=>l.s==="Aleksandra").map(l=>l.l).join("\n");
+  const maleLines=lesson.dialog.filter(l=>l.s!=="Aleksandra").map(l=>l.l).join("\n");
+  if(femLines){
+    sw.appendChild(h("button",{
+      style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--gold);cursor:pointer;font-size:12px;font-family:inherit;margin-right:8px;margin-bottom:12px",
+      onclick:()=>navigator.clipboard.writeText(femLines).then(()=>alert("Skopiowano kwestie Aleksandry!"))},"📋 Kopiuj kwestie Aleksandry"));
+  }
+  if(maleLines){
+    sw.appendChild(h("button",{
+      style:"padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
+      onclick:()=>navigator.clipboard.writeText(maleLines).then(()=>alert("Skopiowano kwestie rozmówcy!"))},"📋 Kopiuj kwestie rozmówcy"));
+  }
+
+  main.appendChild(sw);
+  w.appendChild(main);
+  return w;
+}
+
+function renderAudioSlot(lesson, slot, title, desc, la){
+  const hasFile = !!la[slot];
+  const wrap=h("div",{style:"background:var(--surface);border:1.5px solid "+(hasFile?"var(--gold)":"var(--border)")+";border-radius:12px;padding:18px;margin-bottom:12px"});
+
+  const top=h("div",{style:"display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px"});
+  const info=h("div",{});
+  info.appendChild(h("div",{style:"font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px"},
+    (hasFile?"✓ ":"")+title));
+  info.appendChild(h("div",{style:"font-size:12px;color:var(--text3)"},desc));
+  top.appendChild(info);
+  if(hasFile){
+    top.appendChild(h("button",{
+      style:"padding:5px 12px;border-radius:6px;border:1px solid #fca5a5;background:#fee2e2;color:#dc2626;cursor:pointer;font-size:11px;font-family:inherit",
+      onclick:()=>deleteLessonAudio(lesson.id, slot)},"Usuń"));
+  }
+  wrap.appendChild(top);
+
+  if(hasFile){
+    // Audio player
+    const audio=h("audio",{controls:"true",style:"width:100%;height:36px"});
+    audio.src=la[slot];
+    wrap.appendChild(audio);
+  } else {
+    // Upload area
+    const lbl=h("label",{style:"display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;border:1.5px dashed var(--border2);border-radius:8px;cursor:pointer;background:var(--accent-bg);transition:background .15s"});
+    lbl.onmouseover=()=>{lbl.style.background="var(--border)";};
+    lbl.onmouseout=()=>{lbl.style.background="var(--accent-bg)";};
+    lbl.appendChild(h("span",{style:"font-size:20px;opacity:.5"},"🎵"));
+    lbl.appendChild(h("span",{style:"font-size:13px;color:var(--text2)"},"Kliknij aby wgrać MP3 lub WAV"));
+    const inp=h("input",{type:"file",accept:"audio/*",style:"display:none",
+      onchange:async(e)=>{
+        if(!e.target.files[0]) return;
+        const file=e.target.files[0];
+        if(file.size > 10*1024*1024){alert("Plik za duży — maksymalnie 10 MB");return;}
+        const dataUrl=await fileToDataUrl(file);
+        saveLessonAudio(lesson.id, slot, dataUrl);
+      }});
+    lbl.appendChild(inp);
+    wrap.appendChild(lbl);
+    wrap.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-top:6px;text-align:center"},"Maksymalnie 10 MB · MP3, WAV, M4A"));
+  }
+  return wrap;
+}
+
+function renderFilmoteka(){
+  const{lang, filmUploadStep, filmFile, filmProcessing, filmError, anthKey}=S;
+  const films = FILMS[lang]||[];
+  const w=h("div",{});
+  w.appendChild(renderTopNav());
+  w.appendChild(h("div",{class:"lang-hero"},
+    ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
+      onclick:()=>set({lang:code,filmLang:code})},
+      h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
+  ));
+  const main=h("div",{class:"main"});
+  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
+  main.appendChild(h("div",{class:"page-title"},"🎬 Filmoteka"));
+  main.appendChild(h("div",{class:"page-sub"},"Ucz się z fragmentów filmów i seriali — "+ LANGS[lang].name));
+
+  // Upload section
+  const uploadSection=h("div",{style:"margin-bottom:36px"});
+  uploadSection.appendChild(h("div",{class:"section-head"},
+    h("div",{class:"section-title"},"Wgraj własny fragment"),
+    h("div",{style:"font-size:12px;color:var(--text3)"},"MP4 · MP3 · WAV · max 25MB")
+  ));
+
+  if(!anthKey){
+    uploadSection.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--text2)"},
+      "⚠️ Potrzebujesz klucza Anthropic API — wejdź w ",h("strong",{},"Ustawienia lektora")," i wpisz klucz."));
+  } else if(filmUploadStep===0){
+    const area=h("div",{class:"upload-film-area"});
+    area.appendChild(h("div",{class:"upload-film-icon"},"🎬"));
+    area.appendChild(h("div",{class:"upload-film-title"},"Kliknij aby wgrać fragment"));
+    area.appendChild(h("div",{class:"upload-film-sub"},"MP4, MP3, WAV — Claude transkrybuje i tworzy lekcję automatycznie"));
+    const inp=h("input",{type:"file",accept:"audio/*,video/*",style:"display:none",
+      onchange:(e)=>{
+        if(!e.target.files[0]) return;
+        if(e.target.files[0].size > 25*1024*1024){alert("Plik za duży — max 25MB");return;}
+        set({filmFile:e.target.files[0],filmUploadStep:1,filmError:""});
+      }});
+    area.onclick=()=>inp.click();
+    area.appendChild(inp);
+    uploadSection.appendChild(area);
+  } else if(filmUploadStep===1){
+    uploadSection.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ "+filmFile.name+" ("+Math.round(filmFile.size/1024/1024*10)/10+" MB)"));
+    if(!filmProcessing){
+      uploadSection.appendChild(h("button",{class:"check-btn",onclick:processFilm},"🎬 Analizuj z AI → utwórz lekcję"));
+      uploadSection.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-top:8px;display:block",
+        onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"← Anuluj"));
+    } else {
+      uploadSection.appendChild(h("div",{style:"text-align:center;padding:24px;color:var(--text2);font-size:13px"},
+        h("div",{style:"font-size:24px;margin-bottom:8px"},"⏳"),
+        h("div",{},"Claude transkrybuje i analizuje fragment..."),
+        h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"Może potrwać kilkanaście sekund")
+      ));
+    }
+    if(filmError) uploadSection.appendChild(h("div",{class:"msg-err"},filmError));
+  } else if(filmUploadStep===3){
+    uploadSection.appendChild(h("div",{class:"msg-ok"},"✓ Lekcja z fragmentu została dodana do sekcji Moje lekcje!"));
+    uploadSection.appendChild(h("button",{class:"add-btn",style:"margin-top:10px",
+      onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"+ Wgraj kolejny fragment"));
+  }
+  main.appendChild(uploadSection);
+
+  // Curated suggestions
+  main.appendChild(h("div",{class:"section-head"},
+    h("div",{class:"section-title"},"Polecane do nauki "+LANGS[lang].name),
+    h("div",{style:"font-size:12px;color:var(--text3)"},"sugerowane sceny do pobrania i wgrania")
+  ));
+  const grid=h("div",{class:"film-grid"});
+  films.forEach(film=>{
+    const card=h("div",{class:"film-card"});
+    const body=h("div",{class:"film-body"});
+    body.appendChild(h("div",{},
+      h("span",{class:"film-badge"},film.type==="film"?"🎞 Film":"📺 Serial"),
+      h("span",{class:"film-badge",style:"margin-left:4px"},film.level),
+      h("span",{class:"film-badge",style:"margin-left:4px"},film.platform)
+    ));
+    body.appendChild(h("div",{class:"film-title"},film.title));
+    body.appendChild(h("div",{class:"film-desc"},film.desc));
+    body.appendChild(h("div",{class:"film-scene"},"💡 Sugerowana scena: "+film.scene));
+    card.appendChild(body);
+    const strip=h("div",{class:"film-strip"});
+    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
+      navigator.clipboard.writeText("Znajdź na "+film.platform+": "+film.title+". Sugerowana scena: "+film.scene)
+        .then(()=>alert("Skopiowano info o filmie!"));
+    }},"📋 Kopiuj info"));
+    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
+      const query=encodeURIComponent(film.title+" "+film.scene+" clip scene");
+      window.open("https://www.youtube.com/results?search_query="+query,"_blank");
+    }},"▶ Szukaj na YT"));
+    card.appendChild(strip);
+    grid.appendChild(card);
+  });
+  main.appendChild(grid);
+
+  // How-to note
+  main.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--text2);line-height:1.7"},
+    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak używać Filmoteki?"),
+    h("div",{},"1. Znajdź scenę na YouTube lub Netflix → pobierz audio (np. przez ",h("strong",{},"yt-dlp"),")"),
+    h("div",{},"2. Wgraj plik MP3/MP4 powyżej"),
+    h("div",{},"3. Claude automatycznie transkrybuje, tłumaczy i tworzy fiszki, gramatykę i ćwiczenia"),
+    h("div",{},"4. Lekcja pojawia się w sekcji ",h("strong",{},"Moje lekcje"),", możesz do niej wracać i ćwiczyć")
+  ));
+
+  w.appendChild(main);
   return w;
 }
 
@@ -1004,10 +2510,13 @@ function render(){
   else if(screen==="practice")root.appendChild(renderPractice());
   else if(screen==="results")root.appendChild(renderResults());
   else if(screen==="settings")root.appendChild(renderSettings());
+  else if(screen==="audiomgr")root.appendChild(renderAudioMgr());
+  else if(screen==="filmoteka")root.appendChild(renderFilmoteka());
 }
 
 window.speechSynthesis.onvoiceschanged=()=>{};
 setTimeout(render,50);
+
 </script>
 </body>
 </html>
