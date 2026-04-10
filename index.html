@@ -10,6 +10,7 @@
 <title>LinguaAgent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 html, body { background: #0f0f0f !important; color: #f0ede8 !important; color-scheme: dark; overscroll-behavior: none; }
 html { min-height: 100%; min-height: -webkit-fill-available; }
@@ -1035,7 +1036,7 @@ let S={
   filmYtInput:"", filmYtId:"",
   filmTranscriptLoading:false, filmTranscriptError:"", filmTranscriptText:"",
   filmTranscriptProcessing:false, filmTranscriptLesson:null,
-  anthKey:localStorage.getItem("lingua_anth_key")||"",
+  geminiKey:localStorage.getItem("gemini_api_key")||"",
   rapidKey:localStorage.getItem("lingua_rapid_key")||"",
   myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
   showUpload:false,uploadLang:"FR",uploadStep:0,uploadFile:null,uploadPreview:null,uploadProcessing:false,uploadError:"",
@@ -1157,38 +1158,44 @@ function deleteMyLesson(lang, idx){
   set({myLessons:ml});
 }
 
+async function extractPdfText(file){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  let fullText = "";
+  for(let i=1;i<=pdf.numPages;i++){
+    const page = await pdf.getPage(i);
+    const tc = await page.getTextContent();
+    fullText += tc.items.map(item=>item.str).join(" ") + "\n";
+  }
+  return fullText;
+}
+
 async function processUpload(){
   set({uploadProcessing:true, uploadError:""});
   const PROMPT = `Przeanalizuj ten material jezykowy. Wyciagnij dialog, slownictwo i gramatyke. Odpowiedz TYLKO czystym JSON bez markdown, schemat: {"title":"tytul","level":"A1","topic":"temat","dialog":[{"s":"rozm","l":"tekst","t":"tlum"}],"vocab":[{"w":"slowo","tr":"tlum","ipa":"","pl":"","ex":"","exT":""}],"fill":[{"s":"zdanie z ___","a":"odp","h":"wskazowka"}],"grammar":[{"rule":"zasada","ex":"przyklad","exT":"tlum","note":"wyjasnienie"}]}`;
   try{
-    let content = [];
+    let parts = [];
     if(S.uploadFile && S.uploadFile.type.startsWith("image/")){
       const b64 = await fileToB64(S.uploadFile);
-      content = [
-        {type:"image", source:{type:"base64", media_type:S.uploadFile.type, data:b64}},
-        {type:"text", text:PROMPT}
+      parts = [
+        {inline_data:{mime_type:S.uploadFile.type, data:b64}},
+        {text:PROMPT}
       ];
     } else if(S.uploadFile && S.uploadFile.type==="application/pdf"){
-      const b64 = await fileToB64(S.uploadFile);
-      content = [
-        {type:"document", source:{type:"base64", media_type:"application/pdf", data:b64}},
-        {type:"text", text:PROMPT}
-      ];
+      const pdfText = await extractPdfText(S.uploadFile);
+      parts = [{text:PROMPT+"\n\nTEKST Z PDF:\n"+pdfText.slice(0,8000)}];
     } else {
-      content = [{type:"text", text:PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
+      parts = [{text:PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
     }
-    const isPdf = S.uploadFile && S.uploadFile.type==="application/pdf";
-    const hdrs = {"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"};
-    if(isPdf) hdrs["anthropic-beta"]="pdfs-2024-09-25";
-    const res = await fetch("https://api.anthropic.com/v1/messages",{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${S.geminiKey}`,{
       method:"POST",
-      headers:hdrs,
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content}]})
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts}]})
     });
     if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("API błąd "+res.status+": "+(errBody.error?.message||""));}
-
     const data = await res.json();
-    const text = data.content[0].text;
+    const text = data.candidates[0].content.parts[0].text;
     const clean = text.replace(/```json|```/g,"").trim();
     const json = JSON.parse(clean);
     json.id = "my_"+Date.now();
@@ -1286,32 +1293,22 @@ Odpowiedz TYLKO czystym JSON (bez markdown, bez komentarzy):
     const b64 = (await fileToDataUrl(file)).split(",")[1];
     const mediaType = file.type || (isVideo ? "video/mp4" : "audio/mpeg");
 
-    let content;
-    if(isVideo){
-      // For video: send as document (Claude can process video frames)
-      content = [
-        {type:"document", source:{type:"base64", media_type:"video/mp4", data:b64}},
-        {type:"text", text:PROMPT}
-      ];
-    } else {
-      // For audio
-      content = [
-        {type:"document", source:{type:"base64", media_type:mediaType, data:b64}},
-        {type:"text", text:PROMPT}
-      ];
-    }
+    const parts = [
+      {inline_data:{mime_type:mediaType, data:b64}},
+      {text:PROMPT}
+    ];
 
-    const res = await fetch("https://api.anthropic.com/v1/messages",{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${S.geminiKey}`,{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-opus-4-5-20251101",max_tokens:3000,messages:[{role:"user",content}]})
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts}]})
     });
     if(!res.ok){
       const err = await res.json().catch(()=>({}));
       throw new Error((err.error?.message)||"API "+res.status);
     }
     const data = await res.json();
-    const text = data.content[0].text;
+    const text = data.candidates[0].content.parts[0].text;
     const clean = text.replace(/```json|```/g,"").trim();
     const json = JSON.parse(clean);
     const lessonId = "film_"+Date.now();
@@ -1751,7 +1748,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey,rapidKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -1856,17 +1853,17 @@ function renderSettings(){
   rr.appendChild(sl);rr.appendChild(rv);
   sw.appendChild(rr);
 
-  // Anthropic + RapidAPI
+  // Gemini + RapidAPI
   sw.appendChild(h("hr",{class:"settings-divider"}));
   sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów i transkrypcje"));
-  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Anthropic API"));
-  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje z transkrypcji. Dostępny na console.anthropic.com → API Keys."));
-  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Gemini API"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje. Pobierz klucz na aistudio.google.com → Get API Key."));
+  const aki=h("input",{type:"password",class:"key-inp",placeholder:"AIza...",value:geminiKey||"",oninput:(e)=>set({geminiKey:e.target.value})});
   sw.appendChild(aki);
-  if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
+  if(geminiKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Gemini API aktywne"));
   const ab=h("div",{class:"row"});
-  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
-  if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
+  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("gemini_api_key",S.geminiKey.trim());set({geminiKey:S.geminiKey.trim()});}},"Zapisz klucz Gemini"));
+  if(geminiKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("gemini_api_key");set({geminiKey:""});}},"Usuń"));
   sw.appendChild(ab);
   sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
   sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
@@ -2013,18 +2010,18 @@ const OAI_VOICES = [
 
 
 function renderUploadPanel(){
-  const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,anthKey}=S;
+  const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,geminiKey}=S;
   const panel=h("div",{class:"upload-panel"});
   const ph=h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"});
   ph.appendChild(h("div",{},
     h("div",{class:"upload-title"},"Wgraj własną lekcję"),
-    h("div",{class:"upload-sub"},"Zdjęcie, PDF lub tekst — Claude przeanalizuje i stworzy lekcję")
+    h("div",{class:"upload-sub"},"Zdjęcie, PDF lub tekst — Gemini przeanalizuje i stworzy lekcję")
   ));
   ph.appendChild(h("button",{style:"background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink3)",onclick:()=>set({showUpload:false})},"✕"));
   panel.appendChild(ph);
 
-  if(!anthKey){
-    panel.appendChild(h("div",{class:"msg-err",style:"margin-bottom:0"},"⚠️ Potrzebujesz klucza Anthropic API — wejdź w Ustawienia lektora."));
+  if(!geminiKey){
+    panel.appendChild(h("div",{class:"msg-err",style:"margin-bottom:0"},"⚠️ Potrzebujesz klucza Gemini API — wejdź w Ustawienia lektora."));
     return panel;
   }
 
@@ -2051,16 +2048,16 @@ function renderUploadPanel(){
       oninput:(e)=>set({uploadPreview:e.target.value})});
     panel.appendChild(ta);
     if(S.uploadPreview&&typeof S.uploadPreview==="string"&&S.uploadPreview.length>10){
-      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:12px",onclick:()=>{set({uploadStep:1});processUpload();}},"Analizuj tekst"));
+      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:12px",onclick:()=>{set({uploadStep:1});processUpload();}},"Analizuj z Gemini Flash"));
     }
   }
 
   if(uploadStep===1&&uploadFile){
     panel.appendChild(h("div",{class:"msg-ok"},"✓ "+uploadFile.name+" ("+Math.round(uploadFile.size/1024)+" KB)"));
     if(!uploadProcessing){
-      panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"Analizuj z AI"));
+      panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"Analizuj z Gemini Flash"));
     } else {
-      panel.appendChild(h("div",{style:"padding:20px;text-align:center;color:var(--ink3);font-size:13px"},"⏳ Claude analizuje materiał..."));
+      panel.appendChild(h("div",{style:"padding:20px;text-align:center;color:var(--ink3);font-size:13px"},"⏳ Trwa analiza tekstu..."));
     }
   }
 
@@ -2323,7 +2320,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey,rapidKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -2428,17 +2425,17 @@ function renderSettings(){
   rr.appendChild(sl);rr.appendChild(rv);
   sw.appendChild(rr);
 
-  // Anthropic + RapidAPI
+  // Gemini + RapidAPI
   sw.appendChild(h("hr",{class:"settings-divider"}));
   sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów i transkrypcje"));
-  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Anthropic API"));
-  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje z transkrypcji. Dostępny na console.anthropic.com → API Keys."));
-  const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Gemini API"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje. Pobierz klucz na aistudio.google.com → Get API Key."));
+  const aki=h("input",{type:"password",class:"key-inp",placeholder:"AIza...",value:geminiKey||"",oninput:(e)=>set({geminiKey:e.target.value})});
   sw.appendChild(aki);
-  if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
+  if(geminiKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Gemini API aktywne"));
   const ab=h("div",{class:"row"});
-  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
-  if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
+  ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("gemini_api_key",S.geminiKey.trim());set({geminiKey:S.geminiKey.trim()});}},"Zapisz klucz Gemini"));
+  if(geminiKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("gemini_api_key");set({geminiKey:""});}},"Usuń"));
   sw.appendChild(ab);
   sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
   sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
@@ -2574,7 +2571,7 @@ async function fetchAndProcessTranscript(){
   const videoId=S.filmYtId;
   if(!videoId){set({filmTranscriptError:"Wklej poprawny link YouTube"});return;}
   if(!S.rapidKey){set({filmTranscriptError:"Wpisz klucz RapidAPI w Ustawieniach"});return;}
-  if(!S.anthKey){set({filmTranscriptError:"Wpisz klucz Anthropic API w Ustawieniach"});return;}
+  if(!S.geminiKey){set({filmTranscriptError:"Wpisz klucz Gemini API w Ustawieniach"});return;}
   set({filmTranscriptLoading:true,filmTranscriptError:"",filmTranscriptText:"",filmTranscriptLesson:null});
   try{
     const langCode={EN:"en",FR:"fr",IT:"it"}[S.lang]||"en";
@@ -2596,14 +2593,14 @@ async function fetchAndProcessTranscript(){
     set({filmTranscriptText:transcript,filmTranscriptLoading:false,filmTranscriptProcessing:true});
     const langNames={EN:"angielski",FR:"francuski",IT:"włoski"};
     const PROMPT=`To jest transkrypcja fragmentu serialu/filmu w języku ${langNames[S.lang]||"angielski"}. Stwórz z niej pełną lekcję językową po polsku. Odpowiedz TYLKO czystym JSON bez markdown:\n{"title":"tytuł sceny","level":"A2","topic":"temat rozmowy","dialog":[{"s":"postać","l":"tekst oryginalny","t":"tłumaczenie polskie"}],"vocab":[{"w":"słowo","tr":"tłumaczenie","ipa":"wymowa IPA","pl":"wymowa po polsku","ex":"przykładowe zdanie","exT":"tłumaczenie"}],"fill":[{"s":"zdanie z ___","a":"odpowiedź","h":"wskazówka"}],"grammar":[{"rule":"zasada","ex":"przykład","exT":"tłumaczenie","note":"wyjaśnienie"}]}\n\nTRANSKRYPCJA:\n${transcript.slice(0,4000)}`;
-    const apiRes=await fetch("https://api.anthropic.com/v1/messages",{
+    const apiRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${S.geminiKey}`,{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content:PROMPT}]})
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts:[{text:PROMPT}]}]})
     });
-    if(!apiRes.ok){const e=await apiRes.json().catch(()=>({}));throw new Error("Claude API błąd: "+(e.error?.message||apiRes.status));}
+    if(!apiRes.ok){const e=await apiRes.json().catch(()=>({}));throw new Error("Gemini API błąd: "+(e.error?.message||apiRes.status));}
     const apiData=await apiRes.json();
-    const clean=apiData.content[0].text.replace(/```json|```/g,"").trim();
+    const clean=apiData.candidates[0].content.parts[0].text.replace(/```json|```/g,"").trim();
     const lesson=JSON.parse(clean);
     lesson.id="film_"+Date.now();lesson.type="dialog";
     set({filmTranscriptProcessing:false,filmTranscriptLesson:lesson});
@@ -2615,7 +2612,7 @@ async function fetchAndProcessTranscript(){
 function renderFilmoteka(){
   const{lang,filmSeries,filmClipId,filmYtInput,filmYtId,
         filmTranscriptLoading,filmTranscriptProcessing,filmTranscriptError,filmTranscriptLesson,
-        rapidKey,anthKey}=S;
+        rapidKey,geminiKey}=S;
   const films=FILMS[lang]||[];
 
   // ── POZIOM 3: widok klipu ─────────────────────────────────────────────────
@@ -2649,10 +2646,10 @@ function renderFilmoteka(){
     ytInpWrap.appendChild(h("button",{class:"check-btn",style:"white-space:nowrap;padding:10px 18px",onclick:fetchAndProcessTranscript},"Pobierz →"));
     main.appendChild(ytInpWrap);
     if(filmYtId) main.appendChild(h("div",{style:"font-size:11px;color:var(--ok-text);margin-bottom:10px"},"✓ ID wideo: "+filmYtId));
-    if(!rapidKey||!anthKey) main.appendChild(h("div",{class:"msg-err",style:"margin-bottom:10px"},"⚠️ Wejdź w Ustawienia i wpisz klucze: "+((!rapidKey)?"RapidAPI ":"")+(!anthKey?"Anthropic API":"")));
+    if(!rapidKey||!geminiKey) main.appendChild(h("div",{class:"msg-err",style:"margin-bottom:10px"},"⚠️ Wejdź w Ustawienia i wpisz klucze: "+((!rapidKey)?"RapidAPI ":"")+(!geminiKey?"Gemini API":"")));
     if(filmTranscriptError) main.appendChild(h("div",{class:"msg-err",style:"margin-bottom:10px"},filmTranscriptError));
     if(filmTranscriptLoading) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"⏳"),h("div",{},"Pobieranie transkrypcji z YouTube...")));
-    else if(filmTranscriptProcessing) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"✨"),h("div",{},"Claude tworzy lekcję..."),h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"może potrwać kilkanaście sekund")));
+    else if(filmTranscriptProcessing) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"✨"),h("div",{},"Trwa analiza tekstu..."),h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"może potrwać kilkanaście sekund")));
     else if(filmTranscriptLesson){
       main.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ Gotowe! Lekcja \""+filmTranscriptLesson.title+"\" jest gotowa"));
       main.appendChild(h("button",{class:"primary",onclick:()=>{saveMyLesson(lang,filmTranscriptLesson);set({filmClipId:null,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:"",screen:"lang"});}},"+ Dodaj do Moich Lekcji"));
