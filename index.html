@@ -582,25 +582,265 @@ function getVoiceId(lang, speakerName){
 // ── FILMOTEKA ─────────────────────────────────────────────────────────────────
 const FILMS = {
   EN: [
-    { id:"friends",    title:"Friends",            type:"serial",  level:"A2-B1", platform:"Netflix",  desc:"Codzienna angielszczyzna, slang, humor. Idealne dla średniozaawansowanych.", scene:"The One Where Nobody's Ready — kłótnia o wyjście na galę." },
-    { id:"crown",      title:"The Crown",          type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Elegancki angielski, formalny styl, akcent brytyjski.", scene:"Scena koronacji — ceremonialne słownictwo." },
-    { id:"fleabag",    title:"Fleabag",            type:"serial",  level:"B1-B2", platform:"Prime",    desc:"Współczesny brytyjski angielski, monologi, dowcip.", scene:"Monolog w kawiarni — naturalne wyrażenia." },
-    { id:"downton",    title:"Downton Abbey",      type:"serial",  level:"B2",    platform:"Prime",    desc:"Klasyczny angielski, Edwardian English, różne klasy społeczne.", scene:"Kolacja z rodziną — etykieta i tytuły." },
-    { id:"bridgerton", title:"Bridgerton",         type:"serial",  level:"B1-B2", platform:"Netflix",  desc:"Regency English, romantyczne dialogi, Ton angielski.", scene:"Bal debiutantek — przedstawianie się." },
+    { id:"friends", title:"Friends", type:"serial", level:"A2-B1", platform:"Netflix",
+      desc:"Codzienna angielszczyzna, slang, humor. Idealne dla średniozaawansowanych.",
+      clips:[
+        { id:"fr1", episode:"S05E16", title:"Pivot!", level:"A2",
+          topic:"Imperatywy, frustracja, codzienne wyrażenia",
+          desc:"Ross prosi o pomoc przy wnoszeniu sofy po schodach krzycząc 'Pivot!'",
+          ytSearch:"Friends Pivot scene Ross sofa stairs" },
+        { id:"fr2", episode:"S06E21", title:"How You Doin'?", level:"A2-B1",
+          topic:"Nieformalne powitania, flirt, humor slangowy",
+          desc:"Joey flirtuje z nową znajomą — słynna technika podrywania.",
+          ytSearch:"Friends Joey How you doin scene clip" },
+        { id:"fr3", episode:"S03E02", title:"The One Where No One's Ready", level:"B1",
+          topic:"Wyrażanie frustracji, negocjacje, chaos",
+          desc:"Wszyscy spieszą się na galę Gellera — kłótnia o ubrania i telefon.",
+          ytSearch:"Friends no one is ready scene clip" }
+      ]
+    },
+    { id:"crown", title:"The Crown", type:"serial", level:"B2-C1", platform:"Netflix",
+      desc:"Elegancki angielski, formalny styl, akcent brytyjski.",
+      clips:[
+        { id:"cr1", episode:"S01E01", title:"The Coronation", level:"B2",
+          topic:"Angielski ceremonialny, tytułowanie, formalny styl",
+          desc:"Scena koronacji — ceremonialne słownictwo królewskie.",
+          ytSearch:"The Crown coronation scene Netflix clip" },
+        { id:"cr2", episode:"S02E01", title:"Royal Duties", level:"C1",
+          topic:"Angielski dyplomatyczny, modalność, perswazja",
+          desc:"Rozmowa o obowiązkach królewskich — formalny ton, dyplomacja.",
+          ytSearch:"The Crown royal duties conversation Netflix" },
+        { id:"cr3", episode:"S03E04", title:"Aberfan", level:"B2",
+          topic:"Wyrażanie kondolencji, czas przeszły narracyjny",
+          desc:"Poruszający dialog o tragedii — emocje, kondolencje, protokół.",
+          ytSearch:"The Crown Aberfan episode scene clip" }
+      ]
+    },
+    { id:"fleabag", title:"Fleabag", type:"serial", level:"B1-B2", platform:"Prime",
+      desc:"Współczesny brytyjski angielski, monologi, dowcip.",
+      clips:[
+        { id:"fl1", episode:"S01E01", title:"The Restaurant", level:"B1-B2",
+          topic:"Colloquialisms, sarkasm, brytyjski humor",
+          desc:"Fleabag rozmawia z siostrą w restauracji — naturalne brytyjskie wyrażenia.",
+          ytSearch:"Fleabag restaurant scene series 1 clip" },
+        { id:"fl2", episode:"S02E04", title:"The Priest", level:"B2",
+          topic:"Wyrażanie uczuć, subtelność języka, ironia",
+          desc:"Rozmowa z księdzem — napięcie, dwuznaczność, piękny dialog.",
+          ytSearch:"Fleabag priest scene series 2 clip" },
+        { id:"fl3", episode:"S01E03", title:"Gallery Opening", level:"B1",
+          topic:"Small talk, formalności towarzyskie, komplementy",
+          desc:"Wernisaż — small talk, toasty, towarzyski angielski.",
+          ytSearch:"Fleabag gallery opening scene" }
+      ]
+    },
+    { id:"downton", title:"Downton Abbey", type:"serial", level:"B2", platform:"Prime",
+      desc:"Klasyczny angielski, Edwardian English, różne klasy społeczne.",
+      clips:[
+        { id:"da1", episode:"S01E01", title:"Breakfast at Downton", level:"B2",
+          topic:"Angielski formalny, tytuły arystokracji, etykieta",
+          desc:"Poranna rozmowa rodziny Crawley — tytuły, etykieta, formalny angielski.",
+          ytSearch:"Downton Abbey breakfast scene Crawley family" },
+        { id:"da2", episode:"S02E05", title:"Dinner Conversation", level:"B2",
+          topic:"Angielski edwardiański, debata, wyrażanie opinii",
+          desc:"Kolacja z gośćmi — dyskusja o wojnie, różnice klasowe w języku.",
+          ytSearch:"Downton Abbey dinner conversation scene" },
+        { id:"da3", episode:"S03E01", title:"Below Stairs", level:"B1-B2",
+          topic:"Dialekty klasowe, angielski nieformalny vs formalny",
+          desc:"Rozmowy służby — kontrast między angielskim arystokracji i służących.",
+          ytSearch:"Downton Abbey servants kitchen scene" }
+      ]
+    },
+    { id:"bridgerton", title:"Bridgerton", type:"serial", level:"B1-B2", platform:"Netflix",
+      desc:"Regency English, romantyczne dialogi, Ton angielski.",
+      clips:[
+        { id:"br1", episode:"S01E01", title:"The Debutante Ball", level:"B1",
+          topic:"Angielski Regency, zwroty grzecznościowe, towarzyskie",
+          desc:"Bal debiutantek — przedstawianie się, komplementy, plotki Lady Whistledown.",
+          ytSearch:"Bridgerton debutante ball scene season 1" },
+        { id:"br2", episode:"S01E03", title:"The Garden Scene", level:"B2",
+          topic:"Flirt, angielski romantyczny, subtelna negocjacja",
+          desc:"Simon i Daphne rozmawiają w ogrodzie — flirt, negocjacje, elegancja.",
+          ytSearch:"Bridgerton Simon Daphne garden scene" },
+        { id:"br3", episode:"S02E01", title:"The Sharma Sisters Arrive", level:"B1-B2",
+          topic:"Angielski wielokulturowy, opis postaci, dramat rodzinny",
+          desc:"Przybycie sióstr Sharma — relacje rodzinne, angielski indyjsko-brytyjski.",
+          ytSearch:"Bridgerton Sharma sisters arrive scene" }
+      ]
+    },
   ],
   FR: [
-    { id:"lupin",      title:"Lupin",              type:"serial",  level:"A2-B1", platform:"Netflix",  desc:"Naturalny francuski, łatwy do zrozumienia. Omar Sy mówi wyraźnie.", scene:"Scena w Luwrze — pytanie o drogę, wyrażenia złodziejskie." },
-    { id:"amelie",     title:"Amélie",             type:"film",    level:"B1-B2", platform:"Prime",    desc:"Poetycki paryski francuski, narracja, wyrażenia potoczne.", scene:"Opis postaci — przymiotniki i cechy charakteru." },
-    { id:"intouchables",title:"Intouchables",      type:"film",    level:"B1",    platform:"Netflix",  desc:"Kontrast slangu (Driss) i formalnego języka (Philippe). Idealne!", scene:"Rozmowa kwalifikacyjna — humor i formalności." },
-    { id:"emily",      title:"Emily in Paris",     type:"serial",  level:"A1-A2", platform:"Netflix",  desc:"Prosty francuski, dużo angielskiego, idealne dla początkujących.", scene:"W kawiarni — zamawianie, nieporozumienia kulturowe." },
-    { id:"dix",        title:"Dix pour cent",      type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Paryski slang show-biznesu, szybkie dialogi, humor.", scene:"Negocjacje kontraktu — biznesowe zwroty." },
+    { id:"lupin", title:"Lupin", type:"serial", level:"A2-B1", platform:"Netflix",
+      desc:"Naturalny francuski, łatwy do zrozumienia. Omar Sy mówi wyraźnie.",
+      clips:[
+        { id:"lu1", episode:"S01E01", title:"Au Louvre", level:"A2-B1",
+          topic:"Słownictwo muzeum, pytania kontrolne, przedstawianie się",
+          desc:"Assane wchodzi do Luwru przebrany za pracownika — przesłuchanie na wejściu.",
+          ytSearch:"Lupin Netflix Louvre scene episode 1" },
+        { id:"lu2", episode:"S01E02", title:"L'Inspecteur", level:"B1",
+          topic:"Dialog-przesłuchanie, passé composé, negacja",
+          desc:"Assane rozmawia z inspektorem — ostrożne odpowiedzi, humor, manipulacja.",
+          ytSearch:"Lupin Netflix inspecteur scene dialogue" },
+        { id:"lu3", episode:"S01E03", title:"Dans la voiture", level:"A2",
+          topic:"Futur proche, wyrażanie planów, słownictwo miasta",
+          desc:"Rozmowa w samochodzie — planowanie ucieczki, wyrażanie intencji.",
+          ytSearch:"Lupin Netflix voiture scene conversation" }
+      ]
+    },
+    { id:"amelie", title:"Amélie", type:"film", level:"B1-B2", platform:"Prime",
+      desc:"Poetycki paryski francuski, narracja, wyrażenia potoczne.",
+      clips:[
+        { id:"am1", episode:"Film", title:"La crème brûlée", level:"B1-B2",
+          topic:"Narracja w czasie teraźniejszym, opis zmysłowy, kulinaria",
+          desc:"Amélie rozbija crème brûlée — opis zmysłowy, poetycka narracja.",
+          ytSearch:"Amélie crème brûlée scene film" },
+        { id:"am2", episode:"Film", title:"À l'Épicerie", level:"B1",
+          topic:"Zakupy, pytania o ceny, wyrażenia grzecznościowe",
+          desc:"Amélie w sklepie spożywczym — ceny, pytania, codzienne zakupy.",
+          ytSearch:"Amélie film épicerie scene dialogue" },
+        { id:"am3", episode:"Film", title:"Nino et la Photo", level:"B1-B2",
+          topic:"Wyrażanie uczuć, nieśmiałość, opis osoby",
+          desc:"Amélie spotyka Nino — nieśmiały dialog, uczucia, romantyzm.",
+          ytSearch:"Amélie film Nino scene romantique" }
+      ]
+    },
+    { id:"intouchables", title:"Intouchables", type:"film", level:"B1", platform:"Netflix",
+      desc:"Kontrast slangu i formalnego języka. Idealny!",
+      clips:[
+        { id:"in1", episode:"Film", title:"L'Entretien d'embauche", level:"B1",
+          topic:"Humor, formalności vs slang, rozmowa o pracę",
+          desc:"Driss na rozmowie kwalifikacyjnej — celowo nie chce dostać pracy.",
+          ytSearch:"Intouchables entretien embauche scene" },
+        { id:"in2", episode:"Film", title:"La Première Journée", level:"B1",
+          topic:"Slang paryski vs język formalny, instrukcje, humor",
+          desc:"Pierwszy dzień Drissa — kontrast dwóch światów, humor.",
+          ytSearch:"Intouchables premier jour scene dialogue" },
+        { id:"in3", episode:"Film", title:"Dans la voiture", level:"B1-B2",
+          topic:"Wyrażanie preferencji, muzyka, humor kulturowy",
+          desc:"Philippe i Driss rozmawiają o muzyce — gust, kultura, humor.",
+          ytSearch:"Intouchables voiture musique scene" }
+      ]
+    },
+    { id:"emily", title:"Emily in Paris", type:"serial", level:"A1-A2", platform:"Netflix",
+      desc:"Prosty francuski, dużo angielskiego, idealne dla początkujących.",
+      clips:[
+        { id:"em1", episode:"S01E01", title:"Premier Jour au Bureau", level:"A1-A2",
+          topic:"Zwroty powitalne, przedstawianie się, podstawowe pytania",
+          desc:"Emily przybywa do pracy w Paryżu — przedstawianie się, nieporozumienia kulturowe.",
+          ytSearch:"Emily in Paris first day office scene French" },
+        { id:"em2", episode:"S01E02", title:"Au Café", level:"A1",
+          topic:"Zamawianie w kawiarni, ceny, nieporozumienia",
+          desc:"Emily zamawia w paryskiej kawiarni — menu, ceny, bariery językowe.",
+          ytSearch:"Emily in Paris cafe scene French language" },
+        { id:"em3", episode:"S01E03", title:"Chez Mindy", level:"A2",
+          topic:"Opis miasta, wyrażanie emocji, słownictwo codzienne",
+          desc:"Emily i Mindy rozmawiają — przyjaźń, Paryż, codzienne życie.",
+          ytSearch:"Emily in Paris Mindy conversation scene" }
+      ]
+    },
+    { id:"dix", title:"Dix pour cent", type:"serial", level:"B2-C1", platform:"Netflix",
+      desc:"Paryski slang show-biznesu, szybkie dialogi, humor.",
+      clips:[
+        { id:"dp1", episode:"S01E01", title:"L'Agence en crise", level:"B2",
+          topic:"Słownictwo biznesowe, wyrażanie pilności, negocjacje",
+          desc:"Agencja talentów przeżywa kryzys — dynamiczny dialog biznesowy.",
+          ytSearch:"Dix pour cent agence scene dialogue" },
+        { id:"dp2", episode:"S02E03", title:"La Négociation", level:"C1",
+          topic:"Negocjacje, conditionnel, argumentacja formalna",
+          desc:"Negocjacje kontraktu — perswazja, argumentacja, formalny język.",
+          ytSearch:"Dix pour cent négociation contrat scene" },
+        { id:"dp3", episode:"S01E02", title:"Casting", level:"B2",
+          topic:"Wyrażanie ocen i opinii, żargon show-biznesu",
+          desc:"Przesłuchanie aktorskie — ocena, wyrażanie opinii, branżowy żargon.",
+          ytSearch:"Dix pour cent casting scene episode" }
+      ]
+    },
   ],
   IT: [
-    { id:"vita_bella", title:"La Vita è Bella",    type:"film",    level:"B1-B2", platform:"Netflix",  desc:"Toskański akcent, prosty słownik, bardzo ekspresyjne dialogi.", scene:"Scena w restauracji — zamówienie, komplementy." },
-    { id:"suburra",    title:"Suburra",            type:"serial",  level:"B2-C1", platform:"Netflix",  desc:"Rzymski slang, dialekt, świat przestępczy. Dla zaawansowanych.", scene:"Spotkanie w barze — negocjacje, groźby." },
-    { id:"perfetti",   title:"Perfetti Sconosciuti", type:"film",  level:"B1",    platform:"Prime",    desc:"Naturalny włoski przy kolacji — idealny do shadowing.", scene:"Kolacja u znajomych — żarty, wyrażenia potoczne." },
-    { id:"era_ora",    title:"Era Ora",            type:"film",    level:"A2-B1", platform:"Netflix",  desc:"Codzienny włoski, proste zdania, ekspresje emocjonalne.", scene:"Rozmowa z rodziną — emocje, codzienne życie." },
-    { id:"maraviglioso",title:"Maraviglioso Boccaccio",type:"film",level:"B2",   platform:"Mubi",     desc:"Klasyczny włoski, bogaty słownik, piękna wymowa.", scene:"Opowieść miłosna — romantyczne zwroty." },
+    { id:"vita_bella", title:"La Vita è Bella", type:"film", level:"B1-B2", platform:"Netflix",
+      desc:"Toskański akcent, prosty słownik, ekspresyjne dialogi.",
+      clips:[
+        { id:"vb1", episode:"Film", title:"Al Ristorante", level:"B1",
+          topic:"Komplementy, flirt włoski, słownictwo restauracyjne",
+          desc:"Guido flirtuje z Dorą przy stole — komplementy, humor, romantyzm.",
+          ytSearch:"La vita è bella restaurant scene Italian" },
+        { id:"vb2", episode:"Film", title:"A Scuola", level:"B1-B2",
+          topic:"Ironia, wyjaśnianie pojęć, humor absurdalny",
+          desc:"Guido udaje inspektora rasowego w szkole — absurdalny humor, ironia.",
+          ytSearch:"La vita è bella school scene Italian humor" },
+        { id:"vb3", episode:"Film", title:"Buongiorno Principessa!", level:"A2-B1",
+          topic:"Powitania, romantyczne wyrażenia, słownictwo poranne",
+          desc:"Słynna scena z 'Buongiorno Principessa!' — romantyczny włoski.",
+          ytSearch:"La vita è bella Buongiorno Principessa scene" }
+      ]
+    },
+    { id:"suburra", title:"Suburra", type:"serial", level:"B2-C1", platform:"Netflix",
+      desc:"Rzymski slang, dialekt, świat przestępczy. Dla zaawansowanych.",
+      clips:[
+        { id:"su1", episode:"S01E01", title:"Il Primo Incontro", level:"B2-C1",
+          topic:"Dialekt rzymski, negocjacje, słownictwo uliczne",
+          desc:"Pierwsze spotkanie głównych bohaterów — napięcie, negocjacje.",
+          ytSearch:"Suburra serie Netflix scena dialogo" },
+        { id:"su2", episode:"S01E03", title:"Al Bar", level:"B2",
+          topic:"Slang włoski, nieformalne negocjacje, wyrażenia potoczne",
+          desc:"Spotkanie w barze — nieformalne negocjacje, wyrażenia potoczne.",
+          ytSearch:"Suburra bar scena dialogo italiano" },
+        { id:"su3", episode:"S02E01", title:"La Tensione", level:"C1",
+          topic:"Wyrażanie presji i zagrożenia, dialekt Romanesco",
+          desc:"Napięta rozmowa między frakcjami — presja, groźby, dyplomacja.",
+          ytSearch:"Suburra tensione scena dialogo Netflix" }
+      ]
+    },
+    { id:"perfetti", title:"Perfetti Sconosciuti", type:"film", level:"B1", platform:"Prime",
+      desc:"Naturalny włoski przy kolacji — idealny do shadowing.",
+      clips:[
+        { id:"pe1", episode:"Film", title:"La Cena Inizia", level:"B1",
+          topic:"Nieformalne powitania, humor w rozmowie, włoski naturalny",
+          desc:"Przyjaciele spotykają się przy kolacji — powitania, plotki, humor.",
+          ytSearch:"Perfetti Sconosciuti scena cena inizio dialogo" },
+        { id:"pe2", episode:"Film", title:"Il Gioco del Telefono", level:"B1-B2",
+          topic:"Wyrażanie zaskoczenia i emocji, zwroty idiomatyczne",
+          desc:"Przyjaciele grają w grę telefonów — napięcie, zaskoczenie, emocje.",
+          ytSearch:"Perfetti Sconosciuti gioco telefono scena" },
+        { id:"pe3", episode:"Film", title:"Le Confessioni", level:"B1",
+          topic:"Wyrażanie prawdy i kłamstwa, konfrontacja, emocje",
+          desc:"Wyznania przy stole — prawda, kłamstwa, konfrontacja.",
+          ytSearch:"Perfetti Sconosciuti confessioni scena" }
+      ]
+    },
+    { id:"era_ora", title:"Era Ora", type:"film", level:"A2-B1", platform:"Netflix",
+      desc:"Codzienny włoski, proste zdania, ekspresje emocjonalne.",
+      clips:[
+        { id:"eo1", episode:"Film", title:"La Famiglia", level:"A2",
+          topic:"Słownictwo rodzinne, wyrażanie emocji, czas teraźniejszy",
+          desc:"Rozmowa z rodziną — emocje, codzienne życie, proste słownictwo.",
+          ytSearch:"Era Ora Netflix scena famiglia dialogo" },
+        { id:"eo2", episode:"Film", title:"Il Risveglio", level:"A2-B1",
+          topic:"Opisywanie sytuacji, pytania, wyrażanie zaskoczenia",
+          desc:"Bohater budzi się po długim śnie — zaskoczenie, adaptacja do nowej rzeczywistości.",
+          ytSearch:"Era Ora Netflix risveglio scena" },
+        { id:"eo3", episode:"Film", title:"Il Futuro", level:"B1",
+          topic:"Futuro e condizionale, wyrażanie planów i marzeń",
+          desc:"Rozmowa o planach na przyszłość — marzenia, obawy, nadzieje.",
+          ytSearch:"Era Ora Netflix futuro dialogo scena" }
+      ]
+    },
+    { id:"maraviglioso", title:"Meraviglioso Boccaccio", type:"film", level:"B2", platform:"Mubi",
+      desc:"Klasyczny włoski, bogaty słownik, piękna wymowa.",
+      clips:[
+        { id:"mr1", episode:"Film", title:"Il Racconto", level:"B2",
+          topic:"Narracja literacka, czas przeszły, słownictwo romantyczne",
+          desc:"Opowiadanie historii miłosnej — narracja, metafory, bogaty słownik.",
+          ytSearch:"Meraviglioso Boccaccio scena racconto" },
+        { id:"mr2", episode:"Film", title:"La Serenata", level:"B2",
+          topic:"Wyrażenia romantyczne, poetycki włoski, komplementy",
+          desc:"Scena miłosna — komplementy poetyckie, romantyczny włoski.",
+          ytSearch:"Meraviglioso Boccaccio serenata scena" },
+        { id:"mr3", episode:"Film", title:"La Corte", level:"B2",
+          topic:"Włoski dworski, tytuły honorowe, formalności",
+          desc:"Scena dworska — formalny włoski, tytuły, ceremonial.",
+          ytSearch:"Meraviglioso Boccaccio corte scena dialogo" }
+      ]
+    },
   ],
 };
 
@@ -791,7 +1031,12 @@ let S={
   lessonAudio:(()=>{try{return JSON.parse(localStorage.getItem("lingua_audio")||"{}")}catch{return {}}})(),
   audioPlaying:false, audioObj:null, audioMgrLesson:null,
   showFilmoteka:false, filmUploadStep:0, filmFile:null, filmProcessing:false, filmError:"", filmLang:"FR",
+  filmSeries:null, filmClipId:null,
+  filmYtInput:"", filmYtId:"",
+  filmTranscriptLoading:false, filmTranscriptError:"", filmTranscriptText:"",
+  filmTranscriptProcessing:false, filmTranscriptLesson:null,
   anthKey:localStorage.getItem("lingua_anth_key")||"",
+  rapidKey:localStorage.getItem("lingua_rapid_key")||"",
   myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
   showUpload:false,uploadLang:"FR",uploadStep:0,uploadFile:null,uploadPreview:null,uploadProcessing:false,uploadError:"",
   elKeyInput:"",elMsg:"",
@@ -932,12 +1177,16 @@ async function processUpload(){
     } else {
       content = [{type:"text", text:PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
     }
+    const isPdf = S.uploadFile && S.uploadFile.type==="application/pdf";
+    const hdrs = {"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"};
+    if(isPdf) hdrs["anthropic-beta"]="pdfs-2024-09-25";
     const res = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:2000,messages:[{role:"user",content}]})
+      headers:hdrs,
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content}]})
     });
-    if(!res.ok) throw new Error("API blad "+res.status);
+    if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("API błąd "+res.status+": "+(errBody.error?.message||""));}
+
     const data = await res.json();
     const text = data.content[0].text;
     const clean = text.replace(/```json|```/g,"").trim();
@@ -1147,7 +1396,7 @@ function renderTopNav(){
     h("div",{class:"nav-right"},
       h("button",{class:"hbtn"+(active?" on":""),onclick:()=>set({screen:"settings",elKeyInput:S.elKey,elMsg:""}),
         style:"letter-spacing:.06em;text-transform:uppercase;font-size:10px"},
-        active?"● Lektor aktywny":"○ Lektor")
+        "⚙ Ustawienia")
     )
   );
 }
@@ -1502,7 +1751,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -1607,10 +1856,11 @@ function renderSettings(){
   rr.appendChild(sl);rr.appendChild(rv);
   sw.appendChild(rr);
 
-  // Anthropic
+  // Anthropic + RapidAPI
   sw.appendChild(h("hr",{class:"settings-divider"}));
-  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów"));
-  sw.appendChild(h("div",{class:"settings-sub"},"Klucz Anthropic API pozwala rozpoznawać tekst ze zdjęć i PDF-ów. Dostępny na console.anthropic.com → API Keys."));
+  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów i transkrypcje"));
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Anthropic API"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje z transkrypcji. Dostępny na console.anthropic.com → API Keys."));
   const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
   sw.appendChild(aki);
   if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
@@ -1618,6 +1868,15 @@ function renderSettings(){
   ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
   if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
   sw.appendChild(ab);
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
+  const rki=h("input",{type:"password",class:"key-inp",placeholder:"Wklej klucz RapidAPI...",value:rapidKey||"",oninput:(e)=>set({rapidKey:e.target.value})});
+  sw.appendChild(rki);
+  if(rapidKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ RapidAPI aktywne"));
+  const rb=h("div",{class:"row"});
+  rb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_rapid_key",S.rapidKey.trim());set({rapidKey:S.rapidKey.trim()});}},"Zapisz klucz RapidAPI"));
+  if(rapidKey) rb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_rapid_key");set({rapidKey:""});}},"Usuń"));
+  sw.appendChild(rb);
   main.appendChild(sw);
   w.appendChild(main);
   return w;
@@ -1733,110 +1992,7 @@ function renderAudioSlot(lesson, slot, title, desc, la){
   return wrap;
 }
 
-function renderFilmoteka(){
-  const{lang, filmUploadStep, filmFile, filmProcessing, filmError, anthKey}=S;
-  const films = FILMS[lang]||[];
-  const w=h("div",{});
-  w.appendChild(renderTopNav());
-  w.appendChild(h("div",{class:"lang-hero"},
-    ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
-      onclick:()=>set({lang:code,filmLang:code})},
-      h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
-  ));
-  const main=h("div",{class:"main"});
-  main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
-  main.appendChild(h("div",{class:"page-title"},"🎬 Filmoteka"));
-  main.appendChild(h("div",{class:"page-sub"},"Ucz się z fragmentów filmów i seriali — "+ LANGS[lang].name));
-
-  // Upload section
-  const uploadSection=h("div",{style:"margin-bottom:36px"});
-  uploadSection.appendChild(h("div",{class:"section-head"},
-    h("div",{class:"section-title"},"Wgraj własny fragment"),
-    h("div",{style:"font-size:12px;color:var(--text3)"},"MP4 · MP3 · WAV · max 25MB")
-  ));
-
-  if(!anthKey){
-    uploadSection.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--text2)"},
-      "⚠️ Potrzebujesz klucza Anthropic API — wejdź w ",h("strong",{},"Ustawienia lektora")," i wpisz klucz."));
-  } else if(filmUploadStep===0){
-    const area=h("div",{class:"upload-film-area"});
-    area.appendChild(h("div",{class:"upload-film-icon"},"🎬"));
-    area.appendChild(h("div",{class:"upload-film-title"},"Kliknij aby wgrać fragment"));
-    area.appendChild(h("div",{class:"upload-film-sub"},"MP4, MP3, WAV — Claude transkrybuje i tworzy lekcję automatycznie"));
-    const inp=h("input",{type:"file",accept:"audio/*,video/*",style:"display:none",
-      onchange:(e)=>{
-        if(!e.target.files[0]) return;
-        if(e.target.files[0].size > 25*1024*1024){alert("Plik za duży — max 25MB");return;}
-        set({filmFile:e.target.files[0],filmUploadStep:1,filmError:""});
-      }});
-    area.onclick=()=>inp.click();
-    area.appendChild(inp);
-    uploadSection.appendChild(area);
-  } else if(filmUploadStep===1){
-    uploadSection.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ "+filmFile.name+" ("+Math.round(filmFile.size/1024/1024*10)/10+" MB)"));
-    if(!filmProcessing){
-      uploadSection.appendChild(h("button",{class:"check-btn",onclick:processFilm},"🎬 Analizuj z AI → utwórz lekcję"));
-      uploadSection.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-top:8px;display:block",
-        onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"← Anuluj"));
-    } else {
-      uploadSection.appendChild(h("div",{style:"text-align:center;padding:24px;color:var(--text2);font-size:13px"},
-        h("div",{style:"font-size:24px;margin-bottom:8px"},"⏳"),
-        h("div",{},"Claude transkrybuje i analizuje fragment..."),
-        h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"Może potrwać kilkanaście sekund")
-      ));
-    }
-    if(filmError) uploadSection.appendChild(h("div",{class:"msg-err"},filmError));
-  } else if(filmUploadStep===3){
-    uploadSection.appendChild(h("div",{class:"msg-ok"},"✓ Lekcja z fragmentu została dodana do sekcji Moje lekcje!"));
-    uploadSection.appendChild(h("button",{class:"add-btn",style:"margin-top:10px",
-      onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"+ Wgraj kolejny fragment"));
-  }
-  main.appendChild(uploadSection);
-
-  // Curated suggestions
-  main.appendChild(h("div",{class:"section-head"},
-    h("div",{class:"section-title"},"Polecane do nauki "+LANGS[lang].name),
-    h("div",{style:"font-size:12px;color:var(--text3)"},"sugerowane sceny do pobrania i wgrania")
-  ));
-  const grid=h("div",{class:"film-grid"});
-  films.forEach(film=>{
-    const card=h("div",{class:"film-card"});
-    const body=h("div",{class:"film-body"});
-    body.appendChild(h("div",{},
-      h("span",{class:"film-badge"},film.type==="film"?"🎞 Film":"📺 Serial"),
-      h("span",{class:"film-badge",style:"margin-left:4px"},film.level),
-      h("span",{class:"film-badge",style:"margin-left:4px"},film.platform)
-    ));
-    body.appendChild(h("div",{class:"film-title"},film.title));
-    body.appendChild(h("div",{class:"film-desc"},film.desc));
-    body.appendChild(h("div",{class:"film-scene"},"💡 Sugerowana scena: "+film.scene));
-    card.appendChild(body);
-    const strip=h("div",{class:"film-strip"});
-    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
-      navigator.clipboard.writeText("Znajdź na "+film.platform+": "+film.title+". Sugerowana scena: "+film.scene)
-        .then(()=>alert("Skopiowano info o filmie!"));
-    }},"📋 Kopiuj info"));
-    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
-      const query=encodeURIComponent(film.title+" "+film.scene+" clip scene");
-      window.open("https://www.youtube.com/results?search_query="+query,"_blank");
-    }},"▶ Szukaj na YT"));
-    card.appendChild(strip);
-    grid.appendChild(card);
-  });
-  main.appendChild(grid);
-
-  // How-to note
-  main.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--text2);line-height:1.7"},
-    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak używać Filmoteki?"),
-    h("div",{},"1. Znajdź scenę na YouTube lub Netflix → pobierz audio (np. przez ",h("strong",{},"yt-dlp"),")"),
-    h("div",{},"2. Wgraj plik MP3/MP4 powyżej"),
-    h("div",{},"3. Claude automatycznie transkrybuje, tłumaczy i tworzy fiszki, gramatykę i ćwiczenia"),
-    h("div",{},"4. Lekcja pojawia się w sekcji ",h("strong",{},"Moje lekcje"),", możesz do niej wracać i ćwiczyć")
-  ));
-
-  w.appendChild(main);
-  return w;
-}
+// first copy of renderFilmoteka removed — active version is below
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 
@@ -2167,7 +2323,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,anthKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -2272,10 +2428,11 @@ function renderSettings(){
   rr.appendChild(sl);rr.appendChild(rv);
   sw.appendChild(rr);
 
-  // Anthropic
+  // Anthropic + RapidAPI
   sw.appendChild(h("hr",{class:"settings-divider"}));
-  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów"));
-  sw.appendChild(h("div",{class:"settings-sub"},"Klucz Anthropic API pozwala rozpoznawać tekst ze zdjęć i PDF-ów. Dostępny na console.anthropic.com → API Keys."));
+  sw.appendChild(h("div",{class:"settings-title",style:"font-size:22px"},"Wgrywanie materiałów i transkrypcje"));
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Klucz Anthropic API"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Analizuje zdjęcia, PDF-y i tworzy lekcje z transkrypcji. Dostępny na console.anthropic.com → API Keys."));
   const aki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:anthKey||"",oninput:(e)=>set({anthKey:e.target.value})});
   sw.appendChild(aki);
   if(anthKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Anthropic API aktywne"));
@@ -2283,6 +2440,15 @@ function renderSettings(){
   ab.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_anth_key",S.anthKey.trim());set({anthKey:S.anthKey.trim()});}},"Zapisz klucz Anthropic"));
   if(anthKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_anth_key");set({anthKey:""});}},"Usuń"));
   sw.appendChild(ab);
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
+  const rki=h("input",{type:"password",class:"key-inp",placeholder:"Wklej klucz RapidAPI...",value:rapidKey||"",oninput:(e)=>set({rapidKey:e.target.value})});
+  sw.appendChild(rki);
+  if(rapidKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ RapidAPI aktywne"));
+  const rb=h("div",{class:"row"});
+  rb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_rapid_key",S.rapidKey.trim());set({rapidKey:S.rapidKey.trim()});}},"Zapisz klucz RapidAPI"));
+  if(rapidKey) rb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_rapid_key");set({rapidKey:""});}},"Usuń"));
+  sw.appendChild(rb);
   main.appendChild(sw);
   w.appendChild(main);
   return w;
@@ -2398,109 +2564,170 @@ function renderAudioSlot(lesson, slot, title, desc, la){
   return wrap;
 }
 
+// ── YOUTUBE TRANSCRIPT ────────────────────────────────────────────────────────
+function extractYtId(url){
+  const m=url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/);
+  return m?m[1]:null;
+}
+
+async function fetchAndProcessTranscript(){
+  const videoId=S.filmYtId;
+  if(!videoId){set({filmTranscriptError:"Wklej poprawny link YouTube"});return;}
+  if(!S.rapidKey){set({filmTranscriptError:"Wpisz klucz RapidAPI w Ustawieniach"});return;}
+  if(!S.anthKey){set({filmTranscriptError:"Wpisz klucz Anthropic API w Ustawieniach"});return;}
+  set({filmTranscriptLoading:true,filmTranscriptError:"",filmTranscriptText:"",filmTranscriptLesson:null});
+  try{
+    const langCode={EN:"en",FR:"fr",IT:"it"}[S.lang]||"en";
+    const res=await fetch("https://youtube-transcriptor.p.rapidapi.com/transcript?video_id="+videoId+"&lang="+langCode,{
+      headers:{"X-RapidAPI-Key":S.rapidKey,"X-RapidAPI-Host":"youtube-transcriptor.p.rapidapi.com"}
+    });
+    if(!res.ok) throw new Error("RapidAPI błąd "+res.status+" — sprawdź klucz API");
+    const data=await res.json();
+    let transcript="";
+    if(Array.isArray(data)&&data.length){
+      const first=data[0];
+      if(first.transcription) transcript=first.transcription.map(d=>d.snippet||d.text||"").join(" ");
+      else if(first.text) transcript=data.map(d=>d.text||"").join(" ");
+      else transcript=JSON.stringify(data).slice(0,4000);
+    } else if(data.transcription){
+      transcript=data.transcription.map(d=>d.snippet||d.text||"").join(" ");
+    } else throw new Error("Nieznany format odpowiedzi API — spróbuj inny filmik");
+    if(!transcript.trim()) throw new Error("Brak transkrypcji dla tego wideo (może być wyłączona na YouTube)");
+    set({filmTranscriptText:transcript,filmTranscriptLoading:false,filmTranscriptProcessing:true});
+    const langNames={EN:"angielski",FR:"francuski",IT:"włoski"};
+    const PROMPT=`To jest transkrypcja fragmentu serialu/filmu w języku ${langNames[S.lang]||"angielski"}. Stwórz z niej pełną lekcję językową po polsku. Odpowiedz TYLKO czystym JSON bez markdown:\n{"title":"tytuł sceny","level":"A2","topic":"temat rozmowy","dialog":[{"s":"postać","l":"tekst oryginalny","t":"tłumaczenie polskie"}],"vocab":[{"w":"słowo","tr":"tłumaczenie","ipa":"wymowa IPA","pl":"wymowa po polsku","ex":"przykładowe zdanie","exT":"tłumaczenie"}],"fill":[{"s":"zdanie z ___","a":"odpowiedź","h":"wskazówka"}],"grammar":[{"rule":"zasada","ex":"przykład","exT":"tłumaczenie","note":"wyjaśnienie"}]}\n\nTRANSKRYPCJA:\n${transcript.slice(0,4000)}`;
+    const apiRes=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":S.anthKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content:PROMPT}]})
+    });
+    if(!apiRes.ok){const e=await apiRes.json().catch(()=>({}));throw new Error("Claude API błąd: "+(e.error?.message||apiRes.status));}
+    const apiData=await apiRes.json();
+    const clean=apiData.content[0].text.replace(/```json|```/g,"").trim();
+    const lesson=JSON.parse(clean);
+    lesson.id="film_"+Date.now();lesson.type="dialog";
+    set({filmTranscriptProcessing:false,filmTranscriptLesson:lesson});
+  }catch(e){
+    set({filmTranscriptLoading:false,filmTranscriptProcessing:false,filmTranscriptError:"Błąd: "+e.message});
+  }
+}
+
 function renderFilmoteka(){
-  const{lang, filmUploadStep, filmFile, filmProcessing, filmError, anthKey}=S;
-  const films = FILMS[lang]||[];
+  const{lang,filmSeries,filmClipId,filmYtInput,filmYtId,
+        filmTranscriptLoading,filmTranscriptProcessing,filmTranscriptError,filmTranscriptLesson,
+        rapidKey,anthKey}=S;
+  const films=FILMS[lang]||[];
+
+  // ── POZIOM 3: widok klipu ─────────────────────────────────────────────────
+  if(filmSeries&&filmClipId){
+    const series=films.find(f=>f.id===filmSeries);
+    const clip=series?.clips.find(c=>c.id===filmClipId);
+    if(!clip) return h("div",{});
+    const w=h("div",{});
+    w.appendChild(renderTopNav());
+    const main=h("div",{class:"main"});
+    main.appendChild(h("button",{class:"back-btn",onclick:()=>set({filmClipId:null,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:""})},"← "+series.title));
+    main.appendChild(h("div",{style:"font-size:10px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px"},clip.episode+" · "+clip.level));
+    main.appendChild(h("div",{class:"page-title",style:"font-size:26px;margin-bottom:4px"},clip.title));
+    main.appendChild(h("div",{style:"font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.6"},clip.desc));
+    main.appendChild(h("div",{style:"font-size:11px;color:var(--gold);margin-bottom:28px"},"Temat: "+clip.topic));
+    const ytSearchUrl="https://www.youtube.com/results?search_query="+encodeURIComponent(clip.ytSearch);
+    const ytA=h("a",{href:ytSearchUrl,target:"_blank",
+      style:"display:inline-block;padding:10px 18px;border:1px solid var(--border2);color:var(--text2);text-decoration:none;font-size:12px;letter-spacing:.06em;margin-bottom:28px;transition:all .2s"},
+      "▶ Szukaj tego klipu na YouTube →");
+    ytA.onmouseover=()=>{ytA.style.borderColor="var(--gold)";ytA.style.color="var(--gold)";};
+    ytA.onmouseout=()=>{ytA.style.borderColor="var(--border2)";ytA.style.color="var(--text2)";};
+    main.appendChild(ytA);
+    main.appendChild(h("div",{class:"sec-label"},"Pobierz transkrypcję i stwórz lekcję"));
+    main.appendChild(h("div",{style:"font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.8"},
+      "1. Znajdź klip na YouTube (przycisk powyżej)",h("br",{}),"2. Skopiuj link z paska adresu",h("br",{}),"3. Wklej poniżej → kliknij Pobierz i stwórz lekcję"));
+    const ytInpWrap=h("div",{style:"display:flex;gap:8px;margin-bottom:10px"});
+    const ytInp=h("input",{type:"text",class:"fill-inp",style:"flex:1;font-size:13px",
+      placeholder:"https://www.youtube.com/watch?v=...",value:filmYtInput,
+      oninput:(e)=>{const v=e.target.value;const id=extractYtId(v);set({filmYtInput:v,filmYtId:id||""});}});
+    ytInpWrap.appendChild(ytInp);
+    ytInpWrap.appendChild(h("button",{class:"check-btn",style:"white-space:nowrap;padding:10px 18px",onclick:fetchAndProcessTranscript},"Pobierz →"));
+    main.appendChild(ytInpWrap);
+    if(filmYtId) main.appendChild(h("div",{style:"font-size:11px;color:var(--ok-text);margin-bottom:10px"},"✓ ID wideo: "+filmYtId));
+    if(!rapidKey||!anthKey) main.appendChild(h("div",{class:"msg-err",style:"margin-bottom:10px"},"⚠️ Wejdź w Ustawienia i wpisz klucze: "+((!rapidKey)?"RapidAPI ":"")+(!anthKey?"Anthropic API":"")));
+    if(filmTranscriptError) main.appendChild(h("div",{class:"msg-err",style:"margin-bottom:10px"},filmTranscriptError));
+    if(filmTranscriptLoading) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"⏳"),h("div",{},"Pobieranie transkrypcji z YouTube...")));
+    else if(filmTranscriptProcessing) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"✨"),h("div",{},"Claude tworzy lekcję..."),h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"może potrwać kilkanaście sekund")));
+    else if(filmTranscriptLesson){
+      main.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ Gotowe! Lekcja \""+filmTranscriptLesson.title+"\" jest gotowa"));
+      main.appendChild(h("button",{class:"primary",onclick:()=>{saveMyLesson(lang,filmTranscriptLesson);set({filmClipId:null,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:"",screen:"lang"});}},"+ Dodaj do Moich Lekcji"));
+      main.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-left:16px",onclick:()=>set({filmTranscriptLesson:null,filmYtInput:"",filmYtId:"",filmTranscriptText:""})},"← Spróbuj inny klip"));
+    }
+    w.appendChild(main);return w;
+  }
+
+  // ── POZIOM 2: lista klipów serii ──────────────────────────────────────────
+  if(filmSeries){
+    const series=films.find(f=>f.id===filmSeries);
+    if(!series) return h("div",{});
+    const w=h("div",{});
+    w.appendChild(renderTopNav());
+    const main=h("div",{class:"main"});
+    main.appendChild(h("button",{class:"back-btn",onclick:()=>set({filmSeries:null})},"← Filmoteka"));
+    main.appendChild(h("div",{style:"font-size:10px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px"},(series.type==="film"?"🎞 Film":"📺 Serial")+" · "+series.level));
+    main.appendChild(h("div",{class:"page-title",style:"font-size:28px;margin-bottom:4px"},series.title));
+    main.appendChild(h("div",{style:"font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.6"},series.desc));
+    const ytSearchUrl="https://www.youtube.com/results?search_query="+encodeURIComponent(series.title+" scene clip learn "+lang);
+    const ytA=h("a",{href:ytSearchUrl,target:"_blank",
+      style:"display:inline-block;padding:7px 14px;border:1px solid var(--border2);color:var(--text3);text-decoration:none;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px;transition:all .2s"},
+      "+ Szukaj nowych klipów na YouTube");
+    ytA.onmouseover=()=>{ytA.style.borderColor="var(--gold)";ytA.style.color="var(--gold)";};
+    ytA.onmouseout=()=>{ytA.style.borderColor="var(--border2)";ytA.style.color="var(--text3)";};
+    main.appendChild(ytA);
+    main.appendChild(h("div",{class:"sec-label"},"Wybierz scenę"));
+    const clipList=h("div",{style:"display:flex;flex-direction:column;gap:1px;background:var(--border)"});
+    (series.clips||[]).forEach(clip=>{
+      const row=h("div",{style:"background:var(--surface);padding:20px 24px;cursor:pointer;transition:background .15s;display:flex;justify-content:space-between;align-items:center",
+        onclick:()=>set({filmClipId:clip.id,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:""})});
+      row.onmouseover=()=>{row.style.background="var(--surface2)";};
+      row.onmouseout=()=>{row.style.background="var(--surface)";};
+      const left=h("div",{style:"flex:1"});
+      left.appendChild(h("div",{style:"font-size:10px;color:var(--text3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px"},clip.episode+" · "+clip.level));
+      left.appendChild(h("div",{style:"font-size:16px;color:var(--text);font-family:'Playfair Display',serif;margin-bottom:3px"},clip.title));
+      left.appendChild(h("div",{style:"font-size:12px;color:var(--text2);line-height:1.5"},clip.desc));
+      left.appendChild(h("div",{style:"font-size:11px;color:var(--gold);margin-top:5px;font-style:italic"},clip.topic));
+      row.appendChild(left);
+      row.appendChild(h("div",{style:"font-size:18px;color:var(--text3);margin-left:16px;flex-shrink:0"},"→"));
+      clipList.appendChild(row);
+    });
+    main.appendChild(clipList);
+    w.appendChild(main);return w;
+  }
+
+  // ── POZIOM 1: lista serii ─────────────────────────────────────────────────
   const w=h("div",{});
   w.appendChild(renderTopNav());
   w.appendChild(h("div",{class:"lang-hero"},
     ...Object.entries(LANGS).map(([code,l])=>h("button",{class:"lang-tab"+(lang===code?" sel":""),
-      onclick:()=>set({lang:code,filmLang:code})},
+      onclick:()=>set({lang:code,filmLang:code,filmSeries:null,filmClipId:null})},
       h("span",{class:"lang-flag"},l.flag),h("span",{class:"lang-name"},l.name)))
   ));
   const main=h("div",{class:"main"});
   main.appendChild(h("button",{class:"back-btn",onclick:()=>set({screen:"lang"})},"← Lekcje"));
   main.appendChild(h("div",{class:"page-title"},"🎬 Filmoteka"));
-  main.appendChild(h("div",{class:"page-sub"},"Ucz się z fragmentów filmów i seriali — "+ LANGS[lang].name));
-
-  // Upload section
-  const uploadSection=h("div",{style:"margin-bottom:36px"});
-  uploadSection.appendChild(h("div",{class:"section-head"},
-    h("div",{class:"section-title"},"Wgraj własny fragment"),
-    h("div",{style:"font-size:12px;color:var(--text3)"},"MP4 · MP3 · WAV · max 25MB")
-  ));
-
-  if(!anthKey){
-    uploadSection.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--text2)"},
-      "⚠️ Potrzebujesz klucza Anthropic API — wejdź w ",h("strong",{},"Ustawienia lektora")," i wpisz klucz."));
-  } else if(filmUploadStep===0){
-    const area=h("div",{class:"upload-film-area"});
-    area.appendChild(h("div",{class:"upload-film-icon"},"🎬"));
-    area.appendChild(h("div",{class:"upload-film-title"},"Kliknij aby wgrać fragment"));
-    area.appendChild(h("div",{class:"upload-film-sub"},"MP4, MP3, WAV — Claude transkrybuje i tworzy lekcję automatycznie"));
-    const inp=h("input",{type:"file",accept:"audio/*,video/*",style:"display:none",
-      onchange:(e)=>{
-        if(!e.target.files[0]) return;
-        if(e.target.files[0].size > 25*1024*1024){alert("Plik za duży — max 25MB");return;}
-        set({filmFile:e.target.files[0],filmUploadStep:1,filmError:""});
-      }});
-    area.onclick=()=>inp.click();
-    area.appendChild(inp);
-    uploadSection.appendChild(area);
-  } else if(filmUploadStep===1){
-    uploadSection.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ "+filmFile.name+" ("+Math.round(filmFile.size/1024/1024*10)/10+" MB)"));
-    if(!filmProcessing){
-      uploadSection.appendChild(h("button",{class:"check-btn",onclick:processFilm},"🎬 Analizuj z AI → utwórz lekcję"));
-      uploadSection.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-top:8px;display:block",
-        onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"← Anuluj"));
-    } else {
-      uploadSection.appendChild(h("div",{style:"text-align:center;padding:24px;color:var(--text2);font-size:13px"},
-        h("div",{style:"font-size:24px;margin-bottom:8px"},"⏳"),
-        h("div",{},"Claude transkrybuje i analizuje fragment..."),
-        h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"Może potrwać kilkanaście sekund")
-      ));
-    }
-    if(filmError) uploadSection.appendChild(h("div",{class:"msg-err"},filmError));
-  } else if(filmUploadStep===3){
-    uploadSection.appendChild(h("div",{class:"msg-ok"},"✓ Lekcja z fragmentu została dodana do sekcji Moje lekcje!"));
-    uploadSection.appendChild(h("button",{class:"add-btn",style:"margin-top:10px",
-      onclick:()=>set({filmUploadStep:0,filmFile:null,filmError:""})},"+ Wgraj kolejny fragment"));
-  }
-  main.appendChild(uploadSection);
-
-  // Curated suggestions
-  main.appendChild(h("div",{class:"section-head"},
-    h("div",{class:"section-title"},"Polecane do nauki "+LANGS[lang].name),
-    h("div",{style:"font-size:12px;color:var(--text3)"},"sugerowane sceny do pobrania i wgrania")
-  ));
+  main.appendChild(h("div",{class:"page-sub"},"Wybierz serial lub film — "+LANGS[lang].name));
   const grid=h("div",{class:"film-grid"});
-  films.forEach(film=>{
-    const card=h("div",{class:"film-card"});
+  films.forEach(series=>{
+    const card=h("div",{class:"film-card",style:"cursor:pointer",onclick:()=>set({filmSeries:series.id})});
+    card.onmouseover=()=>{card.style.background="var(--surface2)";};
+    card.onmouseout=()=>{card.style.background="";};
     const body=h("div",{class:"film-body"});
     body.appendChild(h("div",{},
-      h("span",{class:"film-badge"},film.type==="film"?"🎞 Film":"📺 Serial"),
-      h("span",{class:"film-badge",style:"margin-left:4px"},film.level),
-      h("span",{class:"film-badge",style:"margin-left:4px"},film.platform)
-    ));
-    body.appendChild(h("div",{class:"film-title"},film.title));
-    body.appendChild(h("div",{class:"film-desc"},film.desc));
-    body.appendChild(h("div",{class:"film-scene"},"💡 Sugerowana scena: "+film.scene));
+      h("span",{class:"film-badge"},series.type==="film"?"🎞 Film":"📺 Serial"),
+      h("span",{class:"film-badge",style:"margin-left:4px"},series.level)));
+    body.appendChild(h("div",{class:"film-title"},series.title));
+    body.appendChild(h("div",{class:"film-desc"},series.desc));
+    body.appendChild(h("div",{style:"font-size:11px;color:var(--gold);margin-top:8px"},(series.clips||[]).length+" klipów do nauki →"));
     card.appendChild(body);
-    const strip=h("div",{class:"film-strip"});
-    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
-      navigator.clipboard.writeText("Znajdź na "+film.platform+": "+film.title+". Sugerowana scena: "+film.scene)
-        .then(()=>alert("Skopiowano info o filmie!"));
-    }},"📋 Kopiuj info"));
-    strip.appendChild(h("button",{class:"film-action",onclick:()=>{
-      const query=encodeURIComponent(film.title+" "+film.scene+" clip scene");
-      window.open("https://www.youtube.com/results?search_query="+query,"_blank");
-    }},"▶ Szukaj na YT"));
-    card.appendChild(strip);
     grid.appendChild(card);
   });
   main.appendChild(grid);
-
-  // How-to note
-  main.appendChild(h("div",{style:"background:var(--accent-bg);border-radius:10px;padding:16px 18px;font-size:13px;color:var(--text2);line-height:1.7"},
-    h("div",{style:"font-weight:600;margin-bottom:6px"},"Jak używać Filmoteki?"),
-    h("div",{},"1. Znajdź scenę na YouTube lub Netflix → pobierz audio (np. przez ",h("strong",{},"yt-dlp"),")"),
-    h("div",{},"2. Wgraj plik MP3/MP4 powyżej"),
-    h("div",{},"3. Claude automatycznie transkrybuje, tłumaczy i tworzy fiszki, gramatykę i ćwiczenia"),
-    h("div",{},"4. Lekcja pojawia się w sekcji ",h("strong",{},"Moje lekcje"),", możesz do niej wracać i ćwiczyć")
-  ));
-
-  w.appendChild(main);
-  return w;
+  w.appendChild(main);return w;
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
