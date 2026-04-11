@@ -511,6 +511,39 @@ body{
   .eng-grid{flex-direction:column}
 }
 
+/* ── WORD HIGHLIGHTING ── */
+.word-span{cursor:pointer;border-radius:3px;padding:0 1px;transition:background .1s}
+.word-active{background:#c9a96e;color:#0f0f0f;border-radius:3px;padding:0 2px}
+.word-known{text-decoration-line:underline;text-decoration-color:#4ade80;text-decoration-thickness:2px}
+.word-learning{text-decoration-line:underline;text-decoration-color:#c9a96e;text-decoration-thickness:2px}
+
+/* ── WORD POPUP ── */
+.word-popup{position:fixed;z-index:200;background:#1a1a1a;border:1px solid #c9a96e;border-radius:12px;padding:16px 20px;min-width:220px;max-width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.7);font-family:'Jost',sans-serif}
+.word-popup-word{font-family:'Playfair Display',serif;font-size:22px;color:#f0ede8;margin-bottom:2px;cursor:pointer}
+.word-popup-ipa{font-family:monospace;font-size:13px;color:#6a6660;margin-bottom:6px}
+.word-popup-pl{font-size:15px;color:#c9a96e;font-weight:500;margin-bottom:6px}
+.word-popup-ex{font-size:12px;color:#6a6660;font-style:italic;margin-bottom:14px}
+.word-popup-btns{display:flex;gap:8px}
+.word-popup-known{flex:1;padding:9px;border-radius:8px;border:1px solid #4ade80;background:transparent;color:#4ade80;cursor:pointer;font-size:12px;font-family:inherit}
+.word-popup-learning{flex:1;padding:9px;border-radius:8px;border:1px solid #c9a96e;background:transparent;color:#c9a96e;cursor:pointer;font-size:12px;font-family:inherit}
+
+/* ── LESSON TABS ── */
+.lesson-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
+.lesson-tab-btn{padding:12px 24px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text3);cursor:pointer;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;margin-bottom:-1px}
+.lesson-tab-btn:hover{color:var(--text2)}
+.lesson-tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── VOCAB LIST ── */
+.vocab-list-wrap{max-width:700px}
+.vocab-list-row{display:grid;grid-template-columns:40px 1fr 1fr;gap:8px 20px;padding:14px 0;border-bottom:1px solid var(--border);align-items:start}
+.vocab-list-row:last-child{border-bottom:none}
+.vocab-list-word{font-size:15px;font-weight:500;color:var(--text)}
+.vocab-list-ipa{font-family:monospace;font-size:11px;color:var(--text3);margin-top:2px}
+.vocab-list-phonetic{font-size:11px;color:var(--text3)}
+.vocab-list-translation{font-size:14px;color:var(--gold);font-weight:500}
+.vocab-list-example{font-size:12px;color:var(--text3);font-style:italic;margin-top:3px}
+.vocab-list-num{font-size:11px;color:var(--text3)}
+
 </style>
 </head>
 <body>
@@ -1037,11 +1070,14 @@ let S={
   filmTranscriptLoading:false, filmTranscriptError:"", filmTranscriptText:"",
   filmTranscriptProcessing:false, filmTranscriptLesson:null,
   geminiKey:localStorage.getItem("gemini_api_key")||"",
+  claudeKey:localStorage.getItem("lingua_claude_key")||"",
   rapidKey:localStorage.getItem("lingua_rapid_key")||"",
   myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
   showUpload:false,uploadLang:"FR",uploadStep:0,uploadFile:null,uploadPreview:null,uploadProcessing:false,uploadError:"",
   elKeyInput:"",elMsg:"",
-  voiceRate:parseFloat(localStorage.getItem("lingua_rate")||"1.0")
+  voiceRate:parseFloat(localStorage.getItem("lingua_rate")||"1.0"),
+  lessonTab:"dialog",
+  vocabDir:"lang→pl"
 };
 function set(p){Object.assign(S,p);render();}
 
@@ -1102,6 +1138,21 @@ async function oaiSpeak(text, voiceId){
   const url = URL.createObjectURL(blob);
   return new Promise((res,rej)=>{
     const a=new Audio(url);
+    a.addEventListener('loadedmetadata', ()=>{
+      const durationMs = a.duration * 1000;
+      const lineIdx = S.playingLine;
+      const spans = document.querySelectorAll(`[id^="word-${lineIdx}-"]`);
+      if(spans.length){
+        const timePerWord = durationMs / spans.length;
+        spans.forEach((span, i)=>{
+          setTimeout(()=>{
+            document.querySelectorAll('.word-active').forEach(s=>s.classList.remove('word-active'));
+            span.classList.add('word-active');
+          }, i * timePerWord);
+        });
+        setTimeout(()=>document.querySelectorAll('.word-active').forEach(s=>s.classList.remove('word-active')), durationMs + 100);
+      }
+    });
     a.onended=()=>{URL.revokeObjectURL(url);res();};
     a.onerror=rej; a.play();
   });
@@ -1109,18 +1160,34 @@ async function oaiSpeak(text, voiceId){
 
 async function speak(text, lang, speakerName){
   const isAleksandra = (speakerName||"").toLowerCase().includes("aleksandra") || !speakerName;
+  function startWordHighlight(){
+    const lineIdx = S.playingLine;
+    if(lineIdx < 0) return;
+    const spans = document.querySelectorAll(`[id^="word-${lineIdx}-"]`);
+    if(!spans.length) return;
+    spans.forEach((span, i)=>{
+      setTimeout(()=>{
+        document.querySelectorAll('.word-active').forEach(s=>s.classList.remove('word-active'));
+        span.classList.add('word-active');
+      }, i * 300);
+    });
+    setTimeout(()=>document.querySelectorAll('.word-active').forEach(s=>s.classList.remove('word-active')), spans.length * 300 + 100);
+  }
   try{
     if(S.ttsEngine==="oai" && S.oaiKey){
       const voice = isAleksandra ? S.oaiVoiceFemale : S.oaiVoiceMale;
       await oaiSpeak(text, voice);
     } else if(S.ttsEngine==="el" && S.elKey){
       const vid = getVoiceId(lang, speakerName||"");
+      startWordHighlight();
       await elSpeak(text, lang, vid);
     } else {
+      startWordHighlight();
       await browserSpeak(text, lang);
     }
   } catch(e){
     console.log("TTS err, fallback:", e.message);
+    startWordHighlight();
     await browserSpeak(text, lang);
   }
 }
@@ -1173,36 +1240,62 @@ async function extractPdfText(file){
 
 async function processUpload(){
   set({uploadProcessing:true, uploadError:""});
-  const PROMPT = `Przeanalizuj ten material jezykowy. Wyciagnij dialog, slownictwo i gramatyke. Odpowiedz TYLKO czystym JSON bez markdown, schemat: {"title":"tytul","level":"A1","topic":"temat","dialog":[{"s":"rozm","l":"tekst","t":"tlum"}],"vocab":[{"w":"slowo","tr":"tlum","ipa":"","pl":"","ex":"","exT":""}],"fill":[{"s":"zdanie z ___","a":"odp","h":"wskazowka"}],"grammar":[{"rule":"zasada","ex":"przyklad","exT":"tlum","note":"wyjasnienie"}]}`;
+  const GEMINI_PROMPT = `Przeanalizuj ten material jezykowy. Wyciagnij dialog, slownictwo i gramatyke. Odpowiedz TYLKO czystym JSON bez markdown, schemat: {"title":"tytul","level":"A1","topic":"temat","dialog":[{"s":"rozm","l":"tekst","t":"tlum"}],"vocab":[{"w":"slowo","tr":"tlum","ipa":"","pl":"","ex":"","exT":""}],"fill":[{"s":"zdanie z ___","a":"odp","h":"wskazowka"}],"grammar":[{"rule":"zasada","ex":"przyklad","exT":"tlum","note":"wyjasnienie"}]}`;
+  const PDF_PROMPT = `Jesteś ekspertem tworzenia materiałów do nauki języków. Przeanalizuj CAŁY poniższy tekst z podręcznika i stwórz z niego KOMPLETNĄ lekcję językową.
+
+WAŻNE: Wyciągnij WSZYSTKIE słowa i zwroty z tekstu — minimum 15-20 pozycji vocab. Stwórz dialog który streszcza lub odgrywa temat tekstu (minimum 8 kwestii). Stwórz minimum 5 ćwiczeń fill-in-the-blank używając zdań z tekstu. Stwórz minimum 4 zasady gramatyczne widoczne w tekście.
+
+Odpowiedz TYLKO czystym JSON bez markdown:
+{"title":"tytuł","level":"B1","topic":"temat po polsku","dialog":[{"s":"imię","l":"zdanie z tekstu lub streszczenie","t":"tłumaczenie PL"}],"vocab":[{"w":"słowo/zwrot","tr":"tłumaczenie","ipa":"wymowa IPA","pl":"fonetyka dla Polaka","ex":"przykład z tekstu","exT":"tłumaczenie przykładu"}],"fill":[{"s":"zdanie z ___ luką","a":"odpowiedź","h":"wskazówka po polsku"}],"grammar":[{"rule":"zasada","ex":"przykład z tekstu","exT":"tłumaczenie","note":"wyjaśnienie po polsku"}]}
+
+TEKST DO ANALIZY:
+`;
   try{
-    let parts = [];
-    if(S.uploadFile && S.uploadFile.type.startsWith("image/")){
-      const b64 = await fileToB64(S.uploadFile);
-      parts = [
-        {inline_data:{mime_type:S.uploadFile.type, data:b64}},
-        {text:PROMPT}
-      ];
-    } else if(S.uploadFile && S.uploadFile.type==="application/pdf"){
+    let responseText;
+    if(S.uploadFile && S.uploadFile.type==="application/pdf"){
+      if(!S.claudeKey){throw new Error("Wpisz klucz Anthropic (Claude) API w Ustawieniach");}
       const pdfText = await extractPdfText(S.uploadFile);
-      parts = [{text:PROMPT+"\n\nTEKST Z PDF:\n"+pdfText.slice(0,8000)}];
+      const res = await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{
+          "x-api-key":S.claudeKey,
+          "anthropic-version":"2023-06-01",
+          "content-type":"application/json",
+          "anthropic-dangerous-allow-browser":"true"
+        },
+        body:JSON.stringify({
+          model:"claude-opus-4-5-20251101",
+          max_tokens:4000,
+          messages:[{role:"user",content:PDF_PROMPT+pdfText}]
+        })
+      });
+      if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("Claude API błąd "+res.status+": "+(errBody.error?.message||""));}
+      const data=await res.json();
+      responseText=data.content[0].text;
     } else {
-      parts = [{text:PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
+      let parts=[];
+      if(S.uploadFile && S.uploadFile.type.startsWith("image/")){
+        const b64=await fileToB64(S.uploadFile);
+        parts=[{inline_data:{mime_type:S.uploadFile.type,data:b64}},{text:GEMINI_PROMPT}];
+      } else {
+        parts=[{text:GEMINI_PROMPT+"\n\nTEKST:\n"+S.uploadPreview}];
+      }
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${S.geminiKey}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contents:[{parts}]})
+      });
+      if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("API błąd "+res.status+": "+(errBody.error?.message||""));}
+      const data=await res.json();
+      responseText=data.candidates[0].content.parts[0].text;
     }
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${S.geminiKey}`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({contents:[{parts}]})
-    });
-    if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("API błąd "+res.status+": "+(errBody.error?.message||""));}
-    const data = await res.json();
-    const text = data.candidates[0].content.parts[0].text;
-    const clean = text.replace(/```json|```/g,"").trim();
-    const json = JSON.parse(clean);
-    json.id = "my_"+Date.now();
-    json.type = "dialog";
-    set({uploadProcessing:false, uploadStep:2, uploadPreview:json});
+    const clean=responseText.replace(/```json|```/g,"").trim();
+    const json=JSON.parse(clean);
+    json.id="my_"+Date.now();
+    json.type="dialog";
+    set({uploadProcessing:false,uploadStep:2,uploadPreview:json});
   } catch(e){
-    set({uploadProcessing:false, uploadError:"Blad: "+e.message});
+    set({uploadProcessing:false,uploadError:"Błąd: "+e.message});
   }
 }
 function fileToB64(file){
@@ -1298,7 +1391,7 @@ Odpowiedz TYLKO czystym JSON (bez markdown, bez komentarzy):
       {text:PROMPT}
     ];
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${S.geminiKey}`,{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${S.geminiKey}`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({contents:[{parts}]})
@@ -1456,7 +1549,7 @@ function renderLang(){
     ].forEach(({id,icon,label,desc})=>{
       strip.appendChild(h("button",{class:"action-btn",onclick:()=>{
         if(id==="flashcard"||id==="fill") startPractice(lesson,id);
-        else set({screen:"lesson",lesson,mode:id,playing:false,playingLine:-1});
+        else set({screen:"lesson",lesson,mode:id,lessonTab:id==="grammar"?"grammar":"dialog",playing:false,playingLine:-1});
       }},
         h("div",{class:"aicon"},icon),
         h("div",{class:"alabel"},label),
@@ -1494,7 +1587,15 @@ function renderLang(){
     info.appendChild(h("div",{class:"my-lesson-meta"},(lesson.level||"")+" · "+(lesson.vocab||[]).length+" słówek · "+(lesson.dialog||[]).length+" linii"));
     row.appendChild(info);
     const acts=h("div",{class:"my-lesson-actions"});
-    acts.appendChild(h("button",{class:"sbtn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},"Otwórz"));
+    acts.appendChild(h("button",{class:"sbtn",onclick:()=>set({screen:"lesson",lesson,mode:"dialog",playing:false,playingLine:-1})},"Dialog"));
+    acts.appendChild(h("button",{class:"sbtn",onclick:()=>{
+      if(lesson.vocab&&lesson.vocab.length>0) startPractice(lesson,"flashcard");
+      else alert("Brak słówek w tej lekcji");
+    }},"Fiszki"));
+    acts.appendChild(h("button",{class:"sbtn",onclick:()=>{
+      if(lesson.fill&&lesson.fill.length>0) startPractice(lesson,"fill");
+      else alert("Brak ćwiczeń w tej lekcji");
+    }},"Ćwiczenia"));
     acts.appendChild(h("button",{class:"sbtn",style:"border-color:#fca5a5;color:#dc2626",onclick:()=>{if(confirm("Usunąć?"))deleteMyLesson(lang,i);}},"✕"));
     row.appendChild(acts);
     main.appendChild(row);
@@ -1526,12 +1627,19 @@ function renderLesson(){
     h("div",{class:"page-sub"},lesson.topic+" · "+lesson.level)
   ));
 
+  // Tabs
+  const tabsEl = h("div",{class:"lesson-tabs"});
+  [["dialog","Dialog"],["vocab","Słówka"],["grammar","Gramatyka"]].forEach(([id,label])=>{
+    tabsEl.appendChild(h("button",{class:"lesson-tab-btn"+(S.lessonTab===id?" active":""),
+      onclick:()=>set({lessonTab:id})},label));
+  });
+  main.appendChild(tabsEl);
+
   // Video player if lesson has video
   if(lesson.hasVideo && S.lessonVideos[lesson.id]){
     const videoWrap=h("div",{style:"max-width:680px;margin-bottom:32px"});
     const video=h("video",{controls:"true",style:"width:100%;border-radius:10px;background:#000;max-height:380px"});
     video.style.display="none";
-    // Load from IndexedDB
     loadVideo(S.lessonVideos[lesson.id]).then(blob=>{
       if(blob){
         const url=URL.createObjectURL(blob);
@@ -1540,32 +1648,25 @@ function renderLesson(){
       }
     });
     videoWrap.appendChild(video);
-    // Shadowing mode toggle
     const shadowBtn=h("button",{
       style:"margin-top:8px;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
-      onclick:()=>{
-        // pause video after each subtitle line
-        const lines=main.querySelectorAll(".dline-orig");
-        alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶");
-      }
+      onclick:()=>alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶")
     },"🎭 Tryb shadowing — jak używać?");
     videoWrap.appendChild(shadowBtn);
     main.appendChild(videoWrap);
   }
 
-  if(mode==="dialog"){
+  if(S.lessonTab==="dialog"){
     const dw=h("div",{class:"dialog-wrap"});
     const lessonAudio = S.lessonAudio[lesson.id]||{};
     const hasAudio = lessonAudio.full || lessonAudio.female || lessonAudio.male;
     const dc=h("div",{class:"dialog-controls"});
     dc.appendChild(h("div",{class:"dialog-label"},"Dialog"));
     const btnGroup=h("div",{style:"display:flex;gap:8px;align-items:center"});
-    // Audio management button
     btnGroup.appendChild(h("button",{
       style:"padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:"+(hasAudio?"var(--text)":"var(--surface)")+";color:"+(hasAudio?"#fff":"var(--text2)")+";cursor:pointer;font-size:11px;font-family:inherit;letter-spacing:.04em",
       onclick:()=>set({screen:"audiomgr",lesson,audioMgrLesson:lesson})
     },hasAudio?"🎵 Nagrania":"+ Wgraj nagranie"));
-    // Play button
     if(S.audioPlaying){
       btnGroup.appendChild(h("button",{class:"stop-btn",onclick:stopAudio},"⏹ Stop"));
     } else if(hasAudio){
@@ -1579,13 +1680,35 @@ function renderLesson(){
     }
     dc.appendChild(btnGroup);
     dw.appendChild(dc);
-    lesson.dialog.forEach((line,i)=>{
-      const row=h("div",{class:"dline"+(playingLine===i?" active":"")});
+
+    const wordStatus = JSON.parse(localStorage.getItem("lingua_word_status")||"{}");
+    lesson.dialog.forEach((line,lineIdx)=>{
+      const row=h("div",{class:"dline"+(playingLine===lineIdx?" active":"")});
       const spkDiv=h("div",{class:"spk"+(line.s==="Aleksandra"?" me":"")},line.s.toUpperCase());
-      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===i?"▶":"♪"));
+      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===lineIdx?"▶":"♪"));
       row.appendChild(spkDiv);
       const txt=h("div",{class:"dline-text"});
-      txt.appendChild(h("div",{class:"dline-orig"},line.l));
+      const origDiv=h("div",{class:"dline-orig"});
+      let wordIdx=0;
+      line.l.split(/(\s+)/).forEach(token=>{
+        if(/^\s+$/.test(token)){
+          origDiv.appendChild(document.createTextNode(token));
+        } else {
+          const wordClean=token.replace(/[.,!?;:"""''()\[\]«»]/g,"").toLowerCase();
+          const key=wordClean+"_"+lang;
+          const status=wordStatus[key];
+          const span=document.createElement("span");
+          span.id="word-"+lineIdx+"-"+wordIdx;
+          span.dataset.wordclean=wordClean;
+          span.className="word-span"+(status==="known"?" word-known":status==="learning"?" word-learning":"");
+          span.textContent=token;
+          const captW=token, captWC=wordClean, captEl=span;
+          span.onclick=()=>showWordPopup(captW, captWC, lang, captEl);
+          origDiv.appendChild(span);
+          wordIdx++;
+        }
+      });
+      txt.appendChild(origDiv);
       txt.appendChild(h("div",{class:"dline-tr"},line.t));
       row.appendChild(txt);
       dw.appendChild(row);
@@ -1607,7 +1730,11 @@ function renderLesson(){
     main.appendChild(vw);
   }
 
-  if(mode==="grammar"){
+  if(S.lessonTab==="vocab"){
+    main.appendChild(renderVocabList(lesson.vocab, lang));
+  }
+
+  if(S.lessonTab==="grammar"){
     const gw=h("div",{class:"grammar-wrap"});
     gw.appendChild(h("div",{class:"sec-label",style:"margin-bottom:20px"},"Gramatyka lekcji"));
     lesson.grammar.forEach(g=>{
@@ -1748,7 +1875,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,rapidKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,claudeKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -1866,7 +1993,7 @@ function renderSettings(){
   if(geminiKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("gemini_api_key");set({geminiKey:""});}},"Usuń"));
   sw.appendChild(ab);
   sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
-  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Klucz z rapidapi.com → wyszukaj 'YouTube Transcript' → subskrybuj darmowy plan."));
   const rki=h("input",{type:"password",class:"key-inp",placeholder:"Wklej klucz RapidAPI...",value:rapidKey||"",oninput:(e)=>set({rapidKey:e.target.value})});
   sw.appendChild(rki);
   if(rapidKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ RapidAPI aktywne"));
@@ -1874,6 +2001,15 @@ function renderSettings(){
   rb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_rapid_key",S.rapidKey.trim());set({rapidKey:S.rapidKey.trim()});}},"Zapisz klucz RapidAPI"));
   if(rapidKey) rb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_rapid_key");set({rapidKey:""});}},"Usuń"));
   sw.appendChild(rb);
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz Anthropic (Claude) API — analiza PDF"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do analizy PDF z podręczników. Pobierz klucz na console.anthropic.com → API Keys."));
+  const cki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:claudeKey||"",oninput:(e)=>set({claudeKey:e.target.value})});
+  sw.appendChild(cki);
+  if(claudeKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Claude API aktywne"));
+  const cb=h("div",{class:"row"});
+  cb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_claude_key",S.claudeKey.trim());set({claudeKey:S.claudeKey.trim()});}},"Zapisz klucz Claude"));
+  if(claudeKey) cb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_claude_key");set({claudeKey:""});}},"Usuń"));
+  sw.appendChild(cb);
   main.appendChild(sw);
   w.appendChild(main);
   return w;
@@ -2009,6 +2145,133 @@ const OAI_VOICES = [
 // ElevenLabs voices (kept as fallback option)
 
 
+// ── WORD POPUP ────────────────────────────────────────────────────────────────
+function showWordPopup(wordRaw, wordClean, lang, anchorEl){
+  document.getElementById("word-popup")?.remove();
+  document.removeEventListener("mousedown", showWordPopup._outside);
+
+  const popup = document.createElement("div");
+  popup.id = "word-popup";
+  popup.className = "word-popup";
+
+  // Position above anchor
+  const rect = anchorEl.getBoundingClientRect();
+  popup.style.left = Math.min(rect.left, window.innerWidth - 320) + "px";
+  popup.style.top = (rect.top - 10) + "px";
+  popup.style.transform = "translateY(-100%)";
+
+  // Loading state
+  popup.innerHTML = '<div style="color:var(--text3);font-size:13px">Ładowanie...</div>';
+  document.body.appendChild(popup);
+
+  const wordStatus = JSON.parse(localStorage.getItem("lingua_word_status")||"{}");
+  const key = wordClean + "_" + lang;
+
+  async function fillPopup(data){
+    popup.innerHTML = "";
+    const wordEl = document.createElement("div");
+    wordEl.className = "word-popup-word";
+    wordEl.textContent = data.word || wordRaw;
+    wordEl.onclick = ()=> speak(data.word || wordRaw, lang, "");
+    popup.appendChild(wordEl);
+    if(data.ipa){ const d=document.createElement("div"); d.className="word-popup-ipa"; d.textContent=data.ipa; popup.appendChild(d); }
+    if(data.pl){ const d=document.createElement("div"); d.className="word-popup-pl"; d.textContent=data.pl; popup.appendChild(d); }
+    if(data.example){ const d=document.createElement("div"); d.className="word-popup-ex"; d.textContent=data.example; popup.appendChild(d); }
+    const btns = document.createElement("div"); btns.className="word-popup-btns";
+    const knownBtn = document.createElement("button"); knownBtn.className="word-popup-known"; knownBtn.textContent="✓ Znam";
+    knownBtn.onclick = ()=> markWord(key, "known", wordClean, lang);
+    const learningBtn = document.createElement("button"); learningBtn.className="word-popup-learning"; learningBtn.textContent="📖 Uczę się";
+    learningBtn.onclick = ()=> markWord(key, "learning", wordClean, lang);
+    btns.appendChild(knownBtn); btns.appendChild(learningBtn);
+    popup.appendChild(btns);
+  }
+
+  // Check lesson vocab first
+  const lesson = S.lesson;
+  const vocabEntry = lesson?.vocab?.find(v => v.w.toLowerCase() === wordClean);
+  if(vocabEntry){
+    fillPopup({word: vocabEntry.w, ipa: vocabEntry.ipa, pl: vocabEntry.tr, example: vocabEntry.ex});
+  } else if(S.geminiKey){
+    const prompt = `Słowo: "${wordRaw}", język: ${lang}. TYLKO JSON: {"word":"...","ipa":"...","pl":"...","example":"..."}`;
+    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.geminiKey}`,{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+    }).then(r=>r.json()).then(data=>{
+      const txt = data.candidates?.[0]?.content?.parts?.[0]?.text||"{}";
+      const clean = txt.replace(/```json|```/g,"").trim();
+      try{ fillPopup(JSON.parse(clean)); } catch{ fillPopup({word:wordRaw,pl:"",ipa:"",example:""}); }
+    }).catch(()=>fillPopup({word:wordRaw,pl:"",ipa:"",example:""}));
+  } else {
+    fillPopup({word:wordRaw,pl:"(brak klucza Gemini)",ipa:"",example:""});
+  }
+
+  showWordPopup._outside = (e)=>{ if(!popup.contains(e.target) && e.target!==anchorEl){ popup.remove(); document.removeEventListener("mousedown", showWordPopup._outside); } };
+  setTimeout(()=>document.addEventListener("mousedown", showWordPopup._outside), 10);
+}
+
+function markWord(key, status, wordClean, lang){
+  const ws = JSON.parse(localStorage.getItem("lingua_word_status")||"{}");
+  ws[key] = status;
+  localStorage.setItem("lingua_word_status", JSON.stringify(ws));
+  // Update all spans for this word
+  document.querySelectorAll(".word-span").forEach(span=>{
+    const spKey = (span.dataset.wordclean||"") + "_" + lang;
+    if(spKey === key){
+      span.classList.remove("word-known","word-learning");
+      span.classList.add(status==="known"?"word-known":"word-learning");
+    }
+  });
+  document.getElementById("word-popup")?.remove();
+}
+
+function renderVocabList(vocab, lang){
+  const wrap = document.createElement("div");
+  wrap.className = "vocab-list-wrap";
+
+  const dirRow = document.createElement("div");
+  dirRow.style.cssText = "display:flex;gap:8px;margin-bottom:20px";
+  ["lang→pl","pl→lang"].forEach(dir=>{
+    const btn = document.createElement("button");
+    btn.className = "dir-btn" + (S.vocabDir===dir?" sel":"");
+    btn.textContent = dir==="lang→pl" ? (LANGS[lang].flag+" → 🇵🇱") : ("🇵🇱 → "+LANGS[lang].flag);
+    btn.onclick = ()=> set({vocabDir:dir});
+    dirRow.appendChild(btn);
+  });
+  wrap.appendChild(dirRow);
+
+  vocab.forEach((v, i)=>{
+    const row = document.createElement("div");
+    row.className = "vocab-list-row";
+    const isLangToPl = S.vocabDir !== "pl→lang";
+
+    const numSpk = document.createElement("div");
+    numSpk.style.cssText = "display:flex;align-items:baseline;gap:6px;flex-direction:column";
+    const num = document.createElement("span"); num.className="vocab-list-num"; num.textContent=(i+1)+".";
+    const spkBtn = document.createElement("button");
+    spkBtn.className = "spk-btn";
+    spkBtn.textContent = "♪";
+    spkBtn.onclick = ()=> speak(isLangToPl ? v.w : v.tr, lang, "");
+    numSpk.appendChild(num); numSpk.appendChild(spkBtn);
+    row.appendChild(numSpk);
+
+    const left = document.createElement("div");
+    const wordDiv = document.createElement("div"); wordDiv.className="vocab-list-word"; wordDiv.textContent=isLangToPl?v.w:v.tr;
+    left.appendChild(wordDiv);
+    if(isLangToPl && v.ipa){ const d=document.createElement("div"); d.className="vocab-list-ipa"; d.textContent=v.ipa; left.appendChild(d); }
+    if(isLangToPl && v.pl){ const d=document.createElement("div"); d.className="vocab-list-phonetic"; d.textContent="czytaj: "+v.pl; left.appendChild(d); }
+    row.appendChild(left);
+
+    const right = document.createElement("div");
+    const trDiv = document.createElement("div"); trDiv.className="vocab-list-translation"; trDiv.textContent=isLangToPl?v.tr:v.w;
+    right.appendChild(trDiv);
+    if(v.ex){ const d=document.createElement("div"); d.className="vocab-list-example"; d.textContent=isLangToPl?(v.ex||""):(v.exT||""); right.appendChild(d); }
+    row.appendChild(right);
+
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
 function renderUploadPanel(){
   const{uploadStep,uploadFile,uploadPreview,uploadProcessing,uploadError,uploadLang,geminiKey}=S;
   const panel=h("div",{class:"upload-panel"});
@@ -2098,12 +2361,19 @@ function renderLesson(){
     h("div",{class:"page-sub"},lesson.topic+" · "+lesson.level)
   ));
 
+  // Tabs
+  const tabsEl = h("div",{class:"lesson-tabs"});
+  [["dialog","Dialog"],["vocab","Słówka"],["grammar","Gramatyka"]].forEach(([id,label])=>{
+    tabsEl.appendChild(h("button",{class:"lesson-tab-btn"+(S.lessonTab===id?" active":""),
+      onclick:()=>set({lessonTab:id})},label));
+  });
+  main.appendChild(tabsEl);
+
   // Video player if lesson has video
   if(lesson.hasVideo && S.lessonVideos[lesson.id]){
     const videoWrap=h("div",{style:"max-width:680px;margin-bottom:32px"});
     const video=h("video",{controls:"true",style:"width:100%;border-radius:10px;background:#000;max-height:380px"});
     video.style.display="none";
-    // Load from IndexedDB
     loadVideo(S.lessonVideos[lesson.id]).then(blob=>{
       if(blob){
         const url=URL.createObjectURL(blob);
@@ -2112,32 +2382,25 @@ function renderLesson(){
       }
     });
     videoWrap.appendChild(video);
-    // Shadowing mode toggle
     const shadowBtn=h("button",{
       style:"margin-top:8px;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit",
-      onclick:()=>{
-        // pause video after each subtitle line
-        const lines=main.querySelectorAll(".dline-orig");
-        alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶");
-      }
+      onclick:()=>alert("Tryb shadowing: zatrzymaj wideo ▐▐, powtórz kwestię na głos, a potem wznów ▶")
     },"🎭 Tryb shadowing — jak używać?");
     videoWrap.appendChild(shadowBtn);
     main.appendChild(videoWrap);
   }
 
-  if(mode==="dialog"){
+  if(S.lessonTab==="dialog"){
     const dw=h("div",{class:"dialog-wrap"});
     const lessonAudio = S.lessonAudio[lesson.id]||{};
     const hasAudio = lessonAudio.full || lessonAudio.female || lessonAudio.male;
     const dc=h("div",{class:"dialog-controls"});
     dc.appendChild(h("div",{class:"dialog-label"},"Dialog"));
     const btnGroup=h("div",{style:"display:flex;gap:8px;align-items:center"});
-    // Audio management button
     btnGroup.appendChild(h("button",{
       style:"padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:"+(hasAudio?"var(--text)":"var(--surface)")+";color:"+(hasAudio?"#fff":"var(--text2)")+";cursor:pointer;font-size:11px;font-family:inherit;letter-spacing:.04em",
       onclick:()=>set({screen:"audiomgr",lesson,audioMgrLesson:lesson})
     },hasAudio?"🎵 Nagrania":"+ Wgraj nagranie"));
-    // Play button
     if(S.audioPlaying){
       btnGroup.appendChild(h("button",{class:"stop-btn",onclick:stopAudio},"⏹ Stop"));
     } else if(hasAudio){
@@ -2151,13 +2414,35 @@ function renderLesson(){
     }
     dc.appendChild(btnGroup);
     dw.appendChild(dc);
-    lesson.dialog.forEach((line,i)=>{
-      const row=h("div",{class:"dline"+(playingLine===i?" active":"")});
+
+    const wordStatus = JSON.parse(localStorage.getItem("lingua_word_status")||"{}");
+    lesson.dialog.forEach((line,lineIdx)=>{
+      const row=h("div",{class:"dline"+(playingLine===lineIdx?" active":"")});
       const spkDiv=h("div",{class:"spk"+(line.s==="Aleksandra"?" me":"")},line.s.toUpperCase());
-      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===i?"▶":"♪"));
+      spkDiv.appendChild(h("button",{class:"spk-btn",onclick:()=>{stopDialog();speak(line.l,lang,line.s);}},playingLine===lineIdx?"▶":"♪"));
       row.appendChild(spkDiv);
       const txt=h("div",{class:"dline-text"});
-      txt.appendChild(h("div",{class:"dline-orig"},line.l));
+      const origDiv=h("div",{class:"dline-orig"});
+      let wordIdx=0;
+      line.l.split(/(\s+)/).forEach(token=>{
+        if(/^\s+$/.test(token)){
+          origDiv.appendChild(document.createTextNode(token));
+        } else {
+          const wordClean=token.replace(/[.,!?;:"""''()\[\]«»]/g,"").toLowerCase();
+          const key=wordClean+"_"+lang;
+          const status=wordStatus[key];
+          const span=document.createElement("span");
+          span.id="word-"+lineIdx+"-"+wordIdx;
+          span.dataset.wordclean=wordClean;
+          span.className="word-span"+(status==="known"?" word-known":status==="learning"?" word-learning":"");
+          span.textContent=token;
+          const captW=token, captWC=wordClean, captEl=span;
+          span.onclick=()=>showWordPopup(captW, captWC, lang, captEl);
+          origDiv.appendChild(span);
+          wordIdx++;
+        }
+      });
+      txt.appendChild(origDiv);
       txt.appendChild(h("div",{class:"dline-tr"},line.t));
       row.appendChild(txt);
       dw.appendChild(row);
@@ -2179,7 +2464,11 @@ function renderLesson(){
     main.appendChild(vw);
   }
 
-  if(mode==="grammar"){
+  if(S.lessonTab==="vocab"){
+    main.appendChild(renderVocabList(lesson.vocab, lang));
+  }
+
+  if(S.lessonTab==="grammar"){
     const gw=h("div",{class:"grammar-wrap"});
     gw.appendChild(h("div",{class:"sec-label",style:"margin-bottom:20px"},"Gramatyka lekcji"));
     lesson.grammar.forEach(g=>{
@@ -2320,7 +2609,7 @@ function renderResults(){
 }
 
 function renderSettings(){
-  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,rapidKey}=S;
+  const{elKeyInput,elMsg,elKey,voiceRate,oaiKey,ttsEngine,oaiVoiceFemale,oaiVoiceMale,geminiKey,claudeKey,rapidKey}=S;
   const w=h("div",{});
   w.appendChild(renderTopNav());
   const main=h("div",{class:"main"});
@@ -2438,7 +2727,7 @@ function renderSettings(){
   if(geminiKey) ab.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("gemini_api_key");set({geminiKey:""});}},"Usuń"));
   sw.appendChild(ab);
   sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz RapidAPI — transkrypcje YouTube"));
-  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do pobierania transkrypcji filmów w Filmotece. Klucz znajdziesz na rapidapi.com → My Apps → Default Application → Authorization."));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Klucz z rapidapi.com → wyszukaj 'YouTube Transcript' → subskrybuj darmowy plan."));
   const rki=h("input",{type:"password",class:"key-inp",placeholder:"Wklej klucz RapidAPI...",value:rapidKey||"",oninput:(e)=>set({rapidKey:e.target.value})});
   sw.appendChild(rki);
   if(rapidKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ RapidAPI aktywne"));
@@ -2446,6 +2735,15 @@ function renderSettings(){
   rb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_rapid_key",S.rapidKey.trim());set({rapidKey:S.rapidKey.trim()});}},"Zapisz klucz RapidAPI"));
   if(rapidKey) rb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_rapid_key");set({rapidKey:""});}},"Usuń"));
   sw.appendChild(rb);
+  sw.appendChild(h("div",{class:"sec-label",style:"margin-top:24px"},"Klucz Anthropic (Claude) API — analiza PDF"));
+  sw.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6"},"Potrzebny do analizy PDF z podręczników. Pobierz klucz na console.anthropic.com → API Keys."));
+  const cki=h("input",{type:"password",class:"key-inp",placeholder:"sk-ant-...",value:claudeKey||"",oninput:(e)=>set({claudeKey:e.target.value})});
+  sw.appendChild(cki);
+  if(claudeKey) sw.appendChild(h("div",{class:"msg-ok"},"✓ Claude API aktywne"));
+  const cb=h("div",{class:"row"});
+  cb.appendChild(h("button",{class:"primary",onclick:()=>{localStorage.setItem("lingua_claude_key",S.claudeKey.trim());set({claudeKey:S.claudeKey.trim()});}},"Zapisz klucz Claude"));
+  if(claudeKey) cb.appendChild(h("button",{class:"sbtn danger",onclick:()=>{localStorage.removeItem("lingua_claude_key");set({claudeKey:""});}},"Usuń"));
+  sw.appendChild(cb);
   main.appendChild(sw);
   w.appendChild(main);
   return w;
@@ -2567,6 +2865,51 @@ function extractYtId(url){
   return m?m[1]:null;
 }
 
+async function fetchYouTubeTranscript(videoId){
+  // Próba 1: youtube-transcript3 API
+  try{
+    const res=await fetch(
+      `https://youtube-transcript3.p.rapidapi.com/api/transcript?videoId=${videoId}&lang=en`,
+      {headers:{"X-RapidAPI-Key":S.rapidKey,"X-RapidAPI-Host":"youtube-transcript3.p.rapidapi.com"}}
+    );
+    if(res.ok){
+      const data=await res.json();
+      if(data.transcript&&data.transcript.length>0){
+        return data.transcript.map(t=>t.text).join(" ");
+      }
+    } else {
+      const errBody=await res.text().catch(()=>"");
+      console.log("Próba 1 failed: HTTP "+res.status+" — "+errBody);
+    }
+  } catch(e){console.log("Próba 1 failed:",e);}
+
+  // Próba 2: youtube-transcriptor API
+  try{
+    const res=await fetch(
+      `https://youtube-transcriptor.p.rapidapi.com/transcript?video_id=${videoId}&lang=en`,
+      {headers:{"X-RapidAPI-Key":S.rapidKey,"X-RapidAPI-Host":"youtube-transcriptor.p.rapidapi.com"}}
+    );
+    if(res.ok){
+      const data=await res.json();
+      if(Array.isArray(data)&&data[0]?.transcriptionAsText){
+        return data[0].transcriptionAsText;
+      }
+      if(data.transcription){
+        return data.transcription.map(t=>t.subtitle).join(" ");
+      }
+    } else {
+      const errBody=await res.text().catch(()=>"");
+      console.log("Próba 2 failed: HTTP "+res.status+" — "+errBody);
+      throw new Error("youtube-transcriptor zwróciło HTTP "+res.status+": "+errBody.slice(0,200));
+    }
+  } catch(e){
+    if(e.message.startsWith("youtube-transcriptor")) throw e;
+    console.log("Próba 2 failed:",e);
+  }
+
+  throw new Error("Brak transkrypcji dla tego wideo — spróbuj inny klip lub wgraj plik MP3/MP4 ręcznie");
+}
+
 async function fetchAndProcessTranscript(){
   const videoId=S.filmYtId;
   if(!videoId){set({filmTranscriptError:"Wklej poprawny link YouTube"});return;}
@@ -2574,26 +2917,12 @@ async function fetchAndProcessTranscript(){
   if(!S.geminiKey){set({filmTranscriptError:"Wpisz klucz Gemini API w Ustawieniach"});return;}
   set({filmTranscriptLoading:true,filmTranscriptError:"",filmTranscriptText:"",filmTranscriptLesson:null});
   try{
-    const langCode={EN:"en",FR:"fr",IT:"it"}[S.lang]||"en";
-    const res=await fetch("https://youtube-transcriptor.p.rapidapi.com/transcript?video_id="+videoId+"&lang="+langCode,{
-      headers:{"X-RapidAPI-Key":S.rapidKey,"X-RapidAPI-Host":"youtube-transcriptor.p.rapidapi.com"}
-    });
-    if(!res.ok) throw new Error("RapidAPI błąd "+res.status+" — sprawdź klucz API");
-    const data=await res.json();
-    let transcript="";
-    if(Array.isArray(data)&&data.length){
-      const first=data[0];
-      if(first.transcription) transcript=first.transcription.map(d=>d.snippet||d.text||"").join(" ");
-      else if(first.text) transcript=data.map(d=>d.text||"").join(" ");
-      else transcript=JSON.stringify(data).slice(0,4000);
-    } else if(data.transcription){
-      transcript=data.transcription.map(d=>d.snippet||d.text||"").join(" ");
-    } else throw new Error("Nieznany format odpowiedzi API — spróbuj inny filmik");
-    if(!transcript.trim()) throw new Error("Brak transkrypcji dla tego wideo (może być wyłączona na YouTube)");
+    const transcript=await fetchYouTubeTranscript(videoId);
+    if(!transcript||!transcript.trim()) throw new Error("Brak transkrypcji dla tego wideo (może być wyłączona na YouTube)");
     set({filmTranscriptText:transcript,filmTranscriptLoading:false,filmTranscriptProcessing:true});
     const langNames={EN:"angielski",FR:"francuski",IT:"włoski"};
     const PROMPT=`To jest transkrypcja fragmentu serialu/filmu w języku ${langNames[S.lang]||"angielski"}. Stwórz z niej pełną lekcję językową po polsku. Odpowiedz TYLKO czystym JSON bez markdown:\n{"title":"tytuł sceny","level":"A2","topic":"temat rozmowy","dialog":[{"s":"postać","l":"tekst oryginalny","t":"tłumaczenie polskie"}],"vocab":[{"w":"słowo","tr":"tłumaczenie","ipa":"wymowa IPA","pl":"wymowa po polsku","ex":"przykładowe zdanie","exT":"tłumaczenie"}],"fill":[{"s":"zdanie z ___","a":"odpowiedź","h":"wskazówka"}],"grammar":[{"rule":"zasada","ex":"przykład","exT":"tłumaczenie","note":"wyjaśnienie"}]}\n\nTRANSKRYPCJA:\n${transcript.slice(0,4000)}`;
-    const apiRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${S.geminiKey}`,{
+    const apiRes=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${S.geminiKey}`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({contents:[{parts:[{text:PROMPT}]}]})
