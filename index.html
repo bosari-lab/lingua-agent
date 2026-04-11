@@ -1069,7 +1069,7 @@ let S={
   filmYtInput:"", filmYtId:"",
   filmTranscriptLoading:false, filmTranscriptError:"", filmTranscriptText:"",
   filmTranscriptProcessing:false, filmTranscriptLesson:null,
-  geminiKey:localStorage.getItem("gemini_api_key")||"",
+  geminiKey:localStorage.getItem("lingua_gemini_key")||"",
   claudeKey:localStorage.getItem("lingua_claude_key")||"",
   rapidKey:localStorage.getItem("lingua_rapid_key")||"",
   myLessons:(()=>{try{return JSON.parse(localStorage.getItem("lingua_my_lessons")||"{}")}catch{return {}}})(),
@@ -1253,25 +1253,18 @@ TEKST DO ANALIZY:
   try{
     let responseText;
     if(S.uploadFile && S.uploadFile.type==="application/pdf"){
-      if(!S.claudeKey){throw new Error("Wpisz klucz Anthropic (Claude) API w Ustawieniach");}
+      if(!S.geminiKey){throw new Error("Wpisz klucz Gemini API w Ustawieniach");}
       const pdfText = await extractPdfText(S.uploadFile);
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{
-          "x-api-key":S.claudeKey,
-          "anthropic-version":"2023-06-01",
-          "content-type":"application/json",
-          "anthropic-dangerous-allow-browser":"true"
-        },
-        body:JSON.stringify({
-          model:"claude-opus-4-5-20251101",
-          max_tokens:4000,
-          messages:[{role:"user",content:PDF_PROMPT+pdfText}]
-        })
-      });
-      if(!res.ok){const errBody=await res.json().catch(()=>({}));throw new Error("Claude API błąd "+res.status+": "+(errBody.error?.message||""));}
-      const data=await res.json();
-      responseText=data.content[0].text;
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.geminiKey}`,
+        {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({contents:[{parts:[{text: PDF_PROMPT + "\n\nTEKST:\n" + pdfText}]}]})
+        }
+      );
+      const data = await res.json();
+      responseText = data.candidates[0].content.parts[0].text;
     } else {
       let parts=[];
       if(S.uploadFile && S.uploadFile.type.startsWith("image/")){
