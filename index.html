@@ -1364,6 +1364,7 @@ Odpowiedz WYŁĄCZNIE czystym JSON, zero tekstu przed ani po, zero markdown:
     if(!json.dialog||!json.vocab) throw new Error("Claude zwrócił niekompletne dane — spróbuj ponownie");
     json.id="my_"+Date.now();
     json.type="dialog";
+    json.source="text";
     if(_savedRawText) json.rawText=_savedRawText;
     set({uploadProcessing:false,uploadStep:2,uploadPreview:json});
   }catch(e){
@@ -1480,6 +1481,7 @@ Odpowiedz TYLKO czystym JSON (bez markdown, bez komentarzy):
     json.id = lessonId;
     json.type = "dialog";
     json.fromFilm = true;
+    json.source = "video";
     json.hasVideo = isVideo;
 
     // Save video to IndexedDB if it's a video file
@@ -1652,7 +1654,15 @@ function renderLang(){
       h("div",{class:"empty-sub"},"Wgraj skan, PDF lub wklej tekst z podręcznika")
     ));
   }
+  // Split lessons into folders
+  const videoLessons=[];
+  const textLessons=[];
   myL.forEach((lesson,i)=>{
+    const entry={lesson,idx:i};
+    if(lesson.source==="video"||lesson.youtubeId||lesson.fromFilm||lesson.id?.startsWith("film_")) videoLessons.push(entry);
+    else textLessons.push(entry);
+  });
+  function renderLessonRow(lesson,idx){
     const row=h("div",{class:"my-lesson-row"});
     const info=h("div",{class:"my-lesson-info"});
     info.appendChild(h("div",{class:"my-lesson-title"},lesson.title||"Bez tytułu"));
@@ -1668,10 +1678,24 @@ function renderLang(){
       if(lesson.fill&&lesson.fill.length>0) startPractice(lesson,"fill");
       else alert("Brak ćwiczeń w tej lekcji");
     }},"Ćwiczenia"));
-    acts.appendChild(h("button",{class:"sbtn",style:"border-color:#fca5a5;color:#dc2626",onclick:()=>{if(confirm("Usunąć?"))deleteMyLesson(lang,i);}},"✕"));
+    acts.appendChild(h("button",{class:"sbtn",style:"border-color:#fca5a5;color:#dc2626",onclick:()=>{if(confirm("Usunąć?"))deleteMyLesson(lang,idx);}},"✕"));
     row.appendChild(acts);
-    main.appendChild(row);
-  });
+    return row;
+  }
+  if(videoLessons.length>0){
+    const vfHead=h("div",{style:"display:flex;align-items:center;gap:8px;margin:20px 0 10px 0"});
+    vfHead.appendChild(h("div",{style:"font-size:16px"},"🎬"));
+    vfHead.appendChild(h("div",{style:"font-size:13px;color:var(--text2);font-weight:500;letter-spacing:.04em"},"Z filmów i YouTube ("+videoLessons.length+")"));
+    main.appendChild(vfHead);
+    videoLessons.forEach(({lesson,idx})=>main.appendChild(renderLessonRow(lesson,idx)));
+  }
+  if(textLessons.length>0){
+    const tfHead=h("div",{style:"display:flex;align-items:center;gap:8px;margin:20px 0 10px 0"});
+    tfHead.appendChild(h("div",{style:"font-size:16px"},"📄"));
+    tfHead.appendChild(h("div",{style:"font-size:13px;color:var(--text2);font-weight:500;letter-spacing:.04em"},"Z plików i tekstów ("+textLessons.length+")"));
+    main.appendChild(tfHead);
+    textLessons.forEach(({lesson,idx})=>main.appendChild(renderLessonRow(lesson,idx)));
+  }
 
   if(S.showUpload && S.uploadLang===lang) main.appendChild(renderUploadPanel());
 
@@ -2553,6 +2577,7 @@ function renderUploadPanel(){
 
   if(uploadStep===0){
     const ug=h("div",{class:"upload-grid"});
+    // Opcja 1: Zdjęcie / Skan
     const imgL=h("label",{class:"upload-opt"});
     imgL.appendChild(h("div",{class:"uicon"},"📸"));
     imgL.appendChild(h("div",{class:"ulabel"},"Zdjęcie / Skan"));
@@ -2560,6 +2585,7 @@ function renderUploadPanel(){
     const ii=h("input",{type:"file",accept:"image/*",style:"display:none",onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
     imgL.appendChild(ii);
     ug.appendChild(imgL);
+    // Opcja 2: PDF
     const pdfL=h("label",{class:"upload-opt"});
     pdfL.appendChild(h("div",{class:"uicon"},"📄"));
     pdfL.appendChild(h("div",{class:"ulabel"},"Plik PDF"));
@@ -2567,14 +2593,29 @@ function renderUploadPanel(){
     const pi=h("input",{type:"file",accept:".pdf",style:"display:none",onchange:(e)=>{if(e.target.files[0])set({uploadFile:e.target.files[0],uploadStep:1});}});
     pdfL.appendChild(pi);
     ug.appendChild(pdfL);
+    // Opcja 3: Własny tekst / notatki
+    const txtOpt=h("div",{class:"upload-opt",style:"cursor:pointer",onclick:()=>set({uploadStep:"text"})});
+    txtOpt.appendChild(h("div",{class:"uicon"},"✏️"));
+    txtOpt.appendChild(h("div",{class:"ulabel"},"Własny tekst"));
+    txtOpt.appendChild(h("div",{class:"udesc"},"Wpisz lub wklej notatki"));
+    ug.appendChild(txtOpt);
     panel.appendChild(ug);
-    panel.appendChild(h("div",{class:"sec-label",style:"margin-top:16px"},"Lub wklej tekst"));
-    const ta=h("textarea",{style:"width:100%;min-height:120px;padding:14px;border:1px solid var(--line);background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:vertical;color:var(--ink)",
-      placeholder:"Wklej tekst, dialog lub słówka z podręcznika...",
+  }
+
+  // Krok "text" — pełny edytor tekstu
+  if(uploadStep==="text"){
+    panel.appendChild(h("button",{class:"back-btn",style:"margin-bottom:12px",onclick:()=>set({uploadStep:0,uploadPreview:null})},"← Wróć do wyboru"));
+    panel.appendChild(h("div",{style:"font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px"},"✏️ Wpisz lub wklej swój tekst"));
+    panel.appendChild(h("div",{style:"font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6"},"Wpisz notatki, dialog, słówka, zdania — AI stworzy z nich kompletną lekcję ze słownikiem, fiszkami, ćwiczeniami, gramatyką i czytaniem."));
+    const ta=h("textarea",{style:"width:100%;min-height:220px;padding:16px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:vertical;color:var(--text);line-height:1.7;border-radius:2px",
+      placeholder:"Wpisz tutaj swoje notatki, tekst z lekcji, dialog, listę słówek...\n\nPrzykład:\nBonjour, comment allez-vous?\nJe suis très content de vous voir.\nOù est la bibliothèque?",
       oninput:(e)=>set({uploadPreview:e.target.value})});
+    if(S.uploadPreview&&typeof S.uploadPreview==="string") ta.value=S.uploadPreview;
     panel.appendChild(ta);
-    if(S.uploadPreview&&typeof S.uploadPreview==="string"&&S.uploadPreview.length>10){
-      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:12px",onclick:()=>{set({uploadStep:1});processUpload();}},"Analizuj z Claude"));
+    const charCount=S.uploadPreview&&typeof S.uploadPreview==="string"?S.uploadPreview.length:0;
+    panel.appendChild(h("div",{style:"font-size:11px;color:var(--text3);margin-top:6px;text-align:right"},charCount+" znaków"+(charCount<20?" · minimum 20 znaków":"")));
+    if(charCount>=20){
+      panel.appendChild(h("button",{class:"check-btn",style:"margin-top:14px;width:100%;padding:14px;font-size:14px",onclick:()=>{set({uploadStep:1,uploadFile:null});processUpload();}},"✨ Stwórz lekcję z tego tekstu"));
     }
   }
 
@@ -2584,6 +2625,16 @@ function renderUploadPanel(){
       panel.appendChild(h("button",{class:"check-btn",onclick:processUpload},"Analizuj z Claude"));
     } else {
       panel.appendChild(h("div",{style:"padding:20px;text-align:center;color:var(--ink3);font-size:13px"},"⏳ Trwa analiza tekstu..."));
+    }
+  }
+
+  if(uploadStep===1&&!uploadFile){
+    if(uploadProcessing){
+      panel.appendChild(h("div",{style:"padding:28px;text-align:center;color:var(--text2);font-size:13px"},
+        h("div",{style:"font-size:28px;margin-bottom:8px"},"✨"),
+        h("div",{},"Tworzę lekcję z Twojego tekstu..."),
+        h("div",{style:"font-size:11px;color:var(--text3);margin-top:6px"},"słownik, fiszki, ćwiczenia, gramatyka — to potrwa kilka sekund")
+      ));
     }
   }
 
@@ -3466,7 +3517,13 @@ function renderFilmoteka(){
     else if(filmTranscriptProcessing) main.appendChild(h("div",{style:"text-align:center;padding:28px;color:var(--text2);font-size:13px"},h("div",{style:"font-size:28px;margin-bottom:8px"},"✨"),h("div",{},"Trwa analiza tekstu..."),h("div",{style:"font-size:11px;color:var(--text3);margin-top:4px"},"może potrwać kilkanaście sekund")));
     else if(filmTranscriptLesson){
       main.appendChild(h("div",{class:"msg-ok",style:"margin-bottom:12px"},"✓ Gotowe! Lekcja \""+filmTranscriptLesson.title+"\" jest gotowa"));
-      main.appendChild(h("button",{class:"primary",onclick:()=>{saveMyLesson(lang,filmTranscriptLesson);set({filmClipId:null,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:"",screen:"lang"});}},"+ Dodaj do Moich Lekcji"));
+      main.appendChild(h("button",{class:"primary",onclick:()=>{
+        const _sl=filmTranscriptLesson;
+        _sl.source="video";
+        _sl.seriesTitle=series?.title||"";
+        if(series?.title&&_sl.title&&!_sl.title.startsWith(series.title)) _sl.title=series.title+" — "+_sl.title;
+        saveMyLesson(lang,_sl);set({filmClipId:null,filmYtInput:"",filmYtId:"",filmTranscriptError:"",filmTranscriptLesson:null,filmTranscriptText:"",screen:"lang"});
+      }},"+ Dodaj do Moich Lekcji"));
       main.appendChild(h("button",{style:"background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;margin-left:16px",onclick:()=>set({filmTranscriptLesson:null,filmYtInput:"",filmYtId:"",filmTranscriptText:""})},"← Spróbuj inny klip"));
     }
     w.appendChild(main);return w;
