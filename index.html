@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0f0f0f">
+<meta name="theme-color" content="#fafaf8">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinguaAgent</title>
@@ -12,34 +12,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-html, body { background: #0f0f0f !important; color: #f0ede8 !important; color-scheme: dark; overscroll-behavior: none; }
+html, body { background: #fafaf8 !important; color: #1a1a18 !important; color-scheme: light; overscroll-behavior: none; }
 html { min-height: 100%; min-height: -webkit-fill-available; }
 :root{
-  --bg:#0f0f0f;
-  --bg2:#161616;
-  --bg3:#1e1e1e;
-  --surface:#1a1a1a;
-  --surface2:#222222;
-  --border:#2a2a2a;
-  --border2:#383838;
-  --text:#f0ede8;
-  --text2:#b8b4ac;
-  --text3:#6a6660;
-  --gold:#c9a96e;
-  --gold2:#e8c990;
-  --gold-dim:#3d2e18;
-  --ok:#2d5a3d;
-  --ok-text:#7dd8a0;
-  --err:#5a2d2d;
-  --err-text:#f09090;
+  --bg:#fafaf8;
+  --bg2:#f3f2ef;
+  --bg3:#eceae6;
+  --surface:#ffffff;
+  --surface2:#f7f6f3;
+  --border:#e4e0da;
+  --border2:#d4d0c8;
+  --text:#1a1a18;
+  --text2:#5a5850;
+  --text3:#8a867e;
+  --gold:#9a7b4f;
+  --gold2:#7a6040;
+  --gold-dim:#f0e8d8;
+  --ok:#e6f5ec;
+  --ok-text:#2a7a48;
+  --err:#fdeaea;
+  --err-text:#c53030;
   --r:4px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-html{background:#0f0f0f !important;min-height:100%;}
+html{background:#fafaf8 !important;min-height:100%;}
 body{
   font-family:'Jost',system-ui,sans-serif;
-  background:#0f0f0f !important;
+  background:#fafaf8 !important;
   color:var(--text);
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
@@ -52,7 +52,7 @@ body{
   width:100%;height:58px;
   display:flex;align-items:center;justify-content:space-between;
   padding:0 40px;
-  background:rgba(15,15,15,.95);
+  background:rgba(255,255,255,.97);
   backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
   position:sticky;top:0;z-index:50;
@@ -312,17 +312,17 @@ body{
 .btn-yes:hover{background:var(--ok);color:var(--ok-text)}
 
 /* ── FILL ── */
-.fill-wrap{max-width:640px;background:#0f0f0f;padding:4px 0}
-.fill-hint{font-size:11px;color:#b8b4ac !important;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.fill-wrap{max-width:640px;background:#fafaf8;padding:4px 0}
+.fill-hint{font-size:11px;color:#5a5850 !important;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
 .fill-sentence{
   font-family:'Playfair Display',serif;
   font-size:22px;font-weight:500;
-  color:#f0ede8 !important;
+  color:#1a1a18 !important;
   margin-bottom:28px;line-height:1.5;
-  text-shadow:0 0 12px #0f0f0f,0 0 4px #0f0f0f;
+  text-shadow:none;
 }
 @media(max-width:720px){
-  .fill-sentence{font-size:18px;background:#0f0f0f;border-radius:4px;padding:8px 0}
+  .fill-sentence{font-size:18px;background:#fafaf8;border-radius:4px;padding:8px 0}
 }
 .fill-inp{
   width:100%;padding:14px 18px;
@@ -513,19 +513,19 @@ body{
 
 /* ── WORD HIGHLIGHTING ── */
 .word-span{cursor:pointer;border-radius:3px;padding:0 1px;transition:background .1s}
-.word-active{background:#c9a96e;color:#0f0f0f;border-radius:3px;padding:0 2px}
-.word-known{text-decoration-line:underline;text-decoration-color:#4ade80;text-decoration-thickness:2px}
-.word-learning{text-decoration-line:underline;text-decoration-color:#c9a96e;text-decoration-thickness:2px}
+.word-active{background:#9a7b4f;color:#ffffff;border-radius:3px;padding:0 2px}
+.word-known{text-decoration-line:underline;text-decoration-color:#2a7a48;text-decoration-thickness:2px}
+.word-learning{text-decoration-line:underline;text-decoration-color:#9a7b4f;text-decoration-thickness:2px}
 
 /* ── WORD POPUP ── */
-.word-popup{position:fixed;z-index:200;background:#1a1a1a;border:1px solid #c9a96e;border-radius:12px;padding:16px 20px;min-width:220px;max-width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.7);font-family:'Jost',sans-serif}
-.word-popup-word{font-family:'Playfair Display',serif;font-size:22px;color:#f0ede8;margin-bottom:2px;cursor:pointer}
-.word-popup-ipa{font-family:monospace;font-size:13px;color:#6a6660;margin-bottom:6px}
-.word-popup-pl{font-size:15px;color:#c9a96e;font-weight:500;margin-bottom:6px}
-.word-popup-ex{font-size:12px;color:#6a6660;font-style:italic;margin-bottom:14px}
+.word-popup{position:fixed;z-index:200;background:#ffffff;border:1px solid #9a7b4f;border-radius:12px;padding:16px 20px;min-width:220px;max-width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.12);font-family:'Jost',sans-serif}
+.word-popup-word{font-family:'Playfair Display',serif;font-size:22px;color:#1a1a18;margin-bottom:2px;cursor:pointer}
+.word-popup-ipa{font-family:monospace;font-size:13px;color:#8a867e;margin-bottom:6px}
+.word-popup-pl{font-size:15px;color:#9a7b4f;font-weight:500;margin-bottom:6px}
+.word-popup-ex{font-size:12px;color:#8a867e;font-style:italic;margin-bottom:14px}
 .word-popup-btns{display:flex;gap:8px}
-.word-popup-known{flex:1;padding:9px;border-radius:8px;border:1px solid #4ade80;background:transparent;color:#4ade80;cursor:pointer;font-size:12px;font-family:inherit}
-.word-popup-learning{flex:1;padding:9px;border-radius:8px;border:1px solid #c9a96e;background:transparent;color:#c9a96e;cursor:pointer;font-size:12px;font-family:inherit}
+.word-popup-known{flex:1;padding:9px;border-radius:8px;border:1px solid #2a7a48;background:transparent;color:#2a7a48;cursor:pointer;font-size:12px;font-family:inherit}
+.word-popup-learning{flex:1;padding:9px;border-radius:8px;border:1px solid #9a7b4f;background:transparent;color:#9a7b4f;cursor:pointer;font-size:12px;font-family:inherit}
 
 /* ── LESSON TABS ── */
 .lesson-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
@@ -1640,7 +1640,7 @@ function renderLang(){
   myHead.appendChild(h("div",{class:"section-title"},"Moje lekcje"));
   const myBtns=h("div",{style:"display:flex;gap:8px"});
   myBtns.appendChild(h("button",{class:"add-btn",
-    style:"background:var(--text);color:#fff;border-color:var(--text)",
+    style:"background:var(--gold);color:#fff;border-color:var(--gold)",
     onclick:()=>set({screen:"filmoteka",filmLang:lang,filmUploadStep:0,filmFile:null,filmError:""})},"🎬 Filmoteka"));
   myBtns.appendChild(h("button",{class:"add-btn",
     onclick:()=>set({showUpload:true,uploadLang:lang,uploadStep:0,uploadFile:null,uploadPreview:null,uploadError:"",uploadProcessing:false})},"+ Wgraj tekst"));
